@@ -1,0 +1,128 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+dist-ssr/
+*.local
+coverage/
+*.tsbuildinfo
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+.*.swp
+
+# Environment variables
+.env
+.env.local
+.env.production.local
+.env.development.local
+.env.test.local
+
+# Testing
+/test-output/
+*.test.js
+test-*.js
+test-*.mjs
+test-*.cjs
+
+# Documentation generation
+docs/api/
+
+# Logs
+*.log
+logs/
+file_watcher.log
+test_server.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+.cache/
+
+# Session files
+sessions/
+
+# Service files
+*.service
+
+# Helper scripts (local development)
+bug-helper.sh
+version-helper.sh
+watcher_control.sh
+file_watcher.sh
+update_indexes.sh
+begin_ritual.sh
+sync_repo.sh
+serve.js
+
+# Local configuration
+ritual.txt
+
+# Development test files
+simple-working-demo.html
+test-agentjs.ts
+test-all-features.js
+test-all-features.ts
+test-built-package.js
+test-comprehensive.mjs
+test-core-features.ts
+test-esm-package.js
+test-fixes.cjs
+test-fixes.js
+test-network-manager.mjs
+test-source-fixes.js
+test-visualization-exports.mjs
+
+# Screenshots (development artifacts)
+screenshots/
+
+# Package lock (keep package-lock.json for reproducible builds)
+# Uncomment if you prefer not to commit lock files
+# package-lock.json
+
+# Python virtual environments
+venv/
+venv_new/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE specific
+.vscode/
+.idea/
+*.iml
+
+# Build artifacts
+*.map
+
+# Keep important config files
+!tsconfig.json
+!tsconfig.build.json
+!vite.config.ts
+!jest.config.js
+!package.json
+!package-lock.json

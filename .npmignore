@@ -1,0 +1,54 @@
+# Development files
+*.ts
+!*.d.ts
+*.tsx
+.*.swp
+._*
+.DS_Store
+.git
+.gitignore
+.npmignore
+.vscode
+node_modules
+npm-debug.log
+coverage
+.nyc_output
+.github
+.eslintrc
+.prettierrc
+jest.config.js
+vite.config.ts
+rollup.config.js
+
+# Source files (using compiled dist)
+src/
+test/
+tests/
+__tests__/
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+
+# Documentation source
+docs/
+examples/
+sessions/
+prompts/
+process/
+scripts/
+assets/
+
+# Build tools
+tsconfig.json
+tsconfig.build.json
+webpack.config.js
+.babelrc
+
+# Other
+*.log
+*.tgz
+.env
+.env.*
+tmp/
+temp/
