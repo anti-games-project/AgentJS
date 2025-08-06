@@ -1,174 +1,400 @@
-# AgentJS Core
+# AgentJS Core Framework
 
-[![npm version](https://badge.fury.io/js/%40agentjs%2Fcore.svg)](https://badge.fury.io/js/%40agentjs%2Fcore)
-[![CI](https://github.com/emptyaddress-project/agentjs-core/workflows/CI/badge.svg)](https://github.com/emptyaddress-project/agentjs-core/actions)
-[![codecov](https://codecov.io/gh/emptyaddress-project/agentjs-core/branch/main/graph/badge.svg)](https://codecov.io/gh/emptyaddress-project/agentjs-core)
+[![npm version](https://badge.fury.io/js/agentjs-core.svg)](https://www.npmjs.com/package/agentjs-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.2%2B-blue)](https://www.typescriptlang.org/)
 
-**A comprehensive agent-based modeling framework with built-in p5.js visualization, designed for social impact research and education.**
+A powerful, TypeScript-first agent-based modeling framework with built-in p5.js visualization, designed for creating interactive simulations, social impact games, and educational experiences.
 
-## 🎯 Mission
+## 🎯 Description
 
-Created in partnership with **Apne Aap Women Worldwide**, AgentJS enables educational tools that illuminate trafficking dynamics and demonstrate pathways to empowerment, supporting the vision of "a world where no child is bought or sold."
+AgentJS Core is a comprehensive framework for building agent-based models (ABMs) in the browser or Node.js. It provides a robust foundation for simulating complex systems through autonomous agents that interact within defined environments. Whether you're modeling social networks, ecological systems, economic markets, or creating educational games about social dynamics, AgentJS Core offers the tools you need.
 
-## ✨ Features
+### Key Features
 
-- 🤖 **Multi-Agent Systems** - BaseAgent, MovingAgent, NetworkAgent with extensible properties
-- 🌍 **Flexible Environments** - Continuous space and grid-based environments with spatial indexing
-- 🔗 **Social Networks** - Dynamic network formation, influence propagation, and community detection
-- 📊 **Data Analysis** - Real-time metrics collection, statistical analysis, and export capabilities
-- 🎨 **Rich Visualizations** - p5.js integration with customizable agent rendering and animations
-- ⚡ **Performance Optimized** - Spatial indexing, object pooling, and efficient algorithms
-- 📱 **Cross-Platform** - Works in browsers, Node.js, and modern bundlers
-- 🔬 **Educational Focus** - Designed for social impact research and complex systems education
-- 🧠 **ML Integration** - Built-in support for machine learning models and behavior trees
+- 🤖 **Flexible Agent System** - Create diverse agent types with customizable behaviors
+- 🌍 **Multiple Environment Types** - Grid-based and continuous space environments
+- 🎨 **Built-in Visualization** - p5.js-powered rendering with camera controls and effects
+- 🧠 **ML Integration** - TensorFlow.js support for intelligent agent behaviors
+- 📊 **Data Analysis** - Comprehensive metrics collection and export capabilities
+- 🎮 **Game-Ready** - Designed for educational games and interactive simulations
+- 📦 **TypeScript First** - Full type safety and excellent IDE support
+- ⚡ **Performance Optimized** - Spatial indexing, object pooling, and efficient scheduling
 
 ## 🚀 Quick Start
 
 ### Installation
 
 ```bash
-npm install @agentjs/core p5
+npm install agentjs-core p5
 ```
 
-### Basic Usage
+Note: p5.js is a peer dependency and must be installed separately.
+
+### Basic Example
 
 ```typescript
-import { BaseAgent, ContinuousSpace, AgentManager, Visualizer } from '@agentjs/core';
-import p5 from 'p5';
+import { BaseAgent, ContinuousSpace, AgentManager, RandomScheduler } from 'agentjs-core';
 
-// Create environment and agents
-const environment = new ContinuousSpace({ 
-  width: 800, 
-  height: 600, 
-  boundaryType: 'periodic' 
-});
+// Create a simple agent that moves randomly
+class RandomWalker extends BaseAgent {
+  constructor(id) {
+    super(id);
+    this.setProperty('x', Math.random() * 500);
+    this.setProperty('y', Math.random() * 500);
+    this.setProperty('speed', 2);
+  }
 
-const agentManager = new AgentManager();
-
-// Create agents with custom properties
-for (let i = 0; i < 50; i++) {
-  const agent = new BaseAgent(`agent-${i}`, {
-    autonomy: Math.random() * 100,
-    resources: Math.random() * 100,
-    type: 'community_member'
-  });
-  
-  agentManager.addAgent(agent);
-  environment.addAgent(agent, {
-    x: Math.random() * 800,
-    y: Math.random() * 600
-  });
+  step() {
+    const angle = Math.random() * Math.PI * 2;
+    const dx = Math.cos(angle) * this.getProperty('speed');
+    const dy = Math.sin(angle) * this.getProperty('speed');
+    
+    this.setProperty('x', this.getProperty('x') + dx);
+    this.setProperty('y', this.getProperty('y') + dy);
+  }
 }
 
-// Set up visualization
+// Set up the simulation
+const environment = new ContinuousSpace(500, 500);
+const scheduler = new RandomScheduler();
+const manager = new AgentManager(environment, scheduler);
+
+// Add agents
+for (let i = 0; i < 100; i++) {
+  const agent = new RandomWalker(`walker-${i}`);
+  manager.addAgent(agent);
+}
+
+// Run simulation steps
+function animate() {
+  manager.step();
+  requestAnimationFrame(animate);
+}
+animate();
+```
+
+## 📚 Use Cases
+
+### Educational Simulations
+Create interactive lessons about complex systems:
+- **Ecosystem Dynamics** - Model predator-prey relationships, food webs
+- **Disease Spread** - Simulate epidemics and intervention strategies
+- **Traffic Flow** - Demonstrate emergence in transportation systems
+- **Economic Markets** - Show supply/demand, market dynamics
+
+### Social Impact Games
+Build games that explore social issues:
+- **Network Effects** - Model social influence and information spread
+- **Resource Management** - Simulate tragedy of the commons scenarios
+- **Community Building** - Explore cooperation vs. competition dynamics
+- **System Intervention** - Test policies and their cascading effects
+
+### Research & Analysis
+Conduct computational experiments:
+- **Behavioral Studies** - Test hypotheses about agent interactions
+- **Policy Testing** - Evaluate intervention strategies
+- **Pattern Discovery** - Identify emergent phenomena
+- **Data Generation** - Create synthetic datasets for ML training
+
+### Interactive Art
+Create generative and responsive experiences:
+- **Flocking Behaviors** - Beautiful emergent patterns
+- **Particle Systems** - Dynamic visual effects
+- **Generative Landscapes** - Evolving virtual worlds
+- **Interactive Installations** - Responsive to user input
+
+## 💻 Detailed Usage
+
+### Creating Custom Agents
+
+```typescript
+import { MovingAgent, NetworkAgent } from 'agentjs-core';
+
+// Agent with movement capabilities
+class Predator extends MovingAgent {
+  constructor(id) {
+    super(id);
+    this.setProperty('huntingRange', 50);
+    this.setProperty('energy', 100);
+  }
+
+  step() {
+    // Find nearest prey
+    const neighbors = this.environment.getNeighbors(this, this.getProperty('huntingRange'));
+    const prey = neighbors.find(n => n instanceof Prey);
+    
+    if (prey) {
+      // Move toward prey
+      this.moveToward(prey.getProperty('x'), prey.getProperty('y'));
+    } else {
+      // Random walk
+      this.randomWalk();
+    }
+    
+    // Decrease energy
+    this.setProperty('energy', this.getProperty('energy') - 1);
+  }
+}
+
+// Agent with social network capabilities
+class SocialAgent extends NetworkAgent {
+  constructor(id) {
+    super(id);
+    this.setProperty('influence', Math.random());
+    this.setProperty('opinion', Math.random());
+  }
+
+  step() {
+    // Get connected agents
+    const connections = this.getConnections();
+    
+    if (connections.length > 0) {
+      // Average opinions of connected agents
+      const avgOpinion = connections.reduce((sum, agent) => 
+        sum + agent.getProperty('opinion'), 0) / connections.length;
+      
+      // Update own opinion based on social influence
+      const currentOpinion = this.getProperty('opinion');
+      const newOpinion = currentOpinion * 0.9 + avgOpinion * 0.1;
+      this.setProperty('opinion', newOpinion);
+    }
+  }
+}
+```
+
+### Visualization with p5.js
+
+```typescript
+import { Visualizer, Camera, HeatMapSystem } from 'agentjs-core';
+import p5 from 'p5';
+
 const sketch = (p: p5) => {
+  let visualizer: Visualizer;
+  let camera: Camera;
+  let heatmap: HeatMapSystem;
+
   p.setup = () => {
     p.createCanvas(800, 600);
+    
+    // Initialize visualization components
+    visualizer = new Visualizer(manager, {
+      canvas: { width: 800, height: 600 },
+      agents: {
+        defaultSize: 5,
+        colorProperty: 'energy', // Color agents by energy level
+        showLabels: false
+      }
+    });
+    
+    camera = new Camera(p);
+    heatmap = new HeatMapSystem(p, 800, 600, 20);
   };
-  
+
   p.draw = () => {
-    p.background(240);
+    p.background(255);
+    
+    // Apply camera transformations
+    camera.apply();
+    
+    // Render heatmap
+    heatmap.update(manager.getAllAgents());
+    heatmap.render();
+    
+    // Render agents
+    visualizer.render(p);
+    
+    camera.reset();
     
     // Step simulation
-    agentManager.stepAll();
-    
-    // Visualize agents
-    const agents = agentManager.getAllAgents();
-    agents.forEach(agent => {
-      const pos = agent.getPosition();
-      const autonomy = agent.getProperty('autonomy') as number;
-      
-      p.fill(255 - autonomy * 2.55, autonomy * 2.55, 100);
-      p.circle(pos.x, pos.y, 10);
-    });
+    manager.step();
+  };
+
+  // Camera controls
+  p.mouseWheel = (event: WheelEvent) => {
+    camera.zoom(event.deltaY * 0.001);
+  };
+
+  p.mouseDragged = () => {
+    if (p.mouseIsPressed) {
+      camera.pan(p.mouseX - p.pmouseX, p.mouseY - p.pmouseY);
+    }
   };
 };
 
 new p5(sketch);
 ```
 
-### Social Network Example
+### Machine Learning Integration
 
 ```typescript
-import { NetworkAgent, NetworkManager, ConnectionType } from '@agentjs/core';
+import { MLAgent, ModelRegistry, StateEncoder } from 'agentjs-core';
+import * as tf from '@tensorflow/tfjs';
 
-// Create network manager
-const networkManager = new NetworkManager();
+// Create an ML-enhanced agent
+class SmartAgent extends MLAgent {
+  constructor(id, model) {
+    super(id, model);
+    this.encoder = new StateEncoder(['x', 'y', 'energy', 'nearestThreat']);
+  }
 
-// Create network agents
-const agent1 = new NetworkAgent('person1', { trust: 80, vulnerability: 30 }, networkManager);
-const agent2 = new NetworkAgent('person2', { trust: 60, vulnerability: 70 }, networkManager);
+  async step() {
+    // Encode current state
+    const state = this.encoder.encode(this.getProperties());
+    
+    // Get action from model
+    const action = await this.predictAction(state);
+    
+    // Execute action
+    this.executeAction(action);
+    
+    // Store experience for training
+    const reward = this.calculateReward();
+    this.storeExperience(state, action, reward);
+  }
+}
 
-// Form supportive connection
-networkManager.addConnection(
-  agent1.id,
-  agent2.id,
-  ConnectionType.SUPPORTIVE,
-  0.8  // connection strength
-);
+// Register and use models
+const registry = new ModelRegistry();
+await registry.loadModel('smart-agent', '/models/smart-agent.json');
 
-// Analyze network
-const analysis = networkManager.getNetworkAnalysis();
-console.log(`Network has ${analysis.nodeCount} nodes and ${analysis.edgeCount} connections`);
+const agent = new SmartAgent('agent-1', registry.getModel('smart-agent'));
 ```
 
-## 🏗️ Architecture
+### Data Collection & Analysis
+
+```typescript
+import { DataCollector, StatisticsEngine, ExportManager } from 'agentjs-core';
+
+// Set up data collection
+const collector = new DataCollector(manager);
+collector.addMetric('averageEnergy', () => {
+  const agents = manager.getAllAgents();
+  const totalEnergy = agents.reduce((sum, a) => sum + a.getProperty('energy'), 0);
+  return totalEnergy / agents.length;
+});
+
+collector.addMetric('clusterCount', () => {
+  // Custom clustering analysis
+  return countClusters(manager.getAllAgents());
+});
+
+// Run simulation and collect data
+for (let step = 0; step < 1000; step++) {
+  manager.step();
+  collector.collect(step);
+}
+
+// Analyze results
+const stats = new StatisticsEngine(collector.getData());
+console.log('Mean energy:', stats.mean('averageEnergy'));
+console.log('Energy std dev:', stats.standardDeviation('averageEnergy'));
+console.log('Correlation:', stats.correlation('averageEnergy', 'clusterCount'));
+
+// Export data
+const exporter = new ExportManager(collector);
+exporter.toCSV('/data/simulation-results.csv');
+exporter.toJSON('/data/simulation-results.json');
+```
+
+## 📖 Documentation
+
+### Core Concepts
+
+- **Agents**: Autonomous entities with properties and behaviors
+- **Environment**: Spatial context where agents exist and interact
+- **Scheduler**: Controls agent activation order (random, sequential, etc.)
+- **Manager**: Coordinates agents, environment, and scheduling
+- **Behaviors**: Reusable action patterns (via behavior trees)
+- **Networks**: Agent relationships and social connections
+- **Visualization**: Real-time rendering of agent states and interactions
+
+### API Reference
+
+Full API documentation is available at: [GitHub Wiki](https://github.com/anti-games-project/AgentJS/wiki)
+
+## 🛠️ Development
+
+### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/anti-games-project/AgentJS.git
+cd AgentJS
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+```
+
+### Project Structure
 
 ```
-@agentjs/core
-├── core/
-│   ├── agents/          # Agent classes and behaviors
-│   ├── environment/     # Spatial environments
-│   ├── scheduling/      # Agent activation patterns
-│   └── interactions/    # Agent interactions and networks
-├── visualization/       # p5.js rendering system
-├── analysis/           # Data collection and statistics
-├── examples/           # Interactive demos and ML models
-└── utils/              # Utility functions
+src/
+├── core/           # Core agent and simulation systems
+├── environment/    # Spatial environments
+├── behaviors/      # Behavior trees and actions
+├── network/        # Social network functionality
+├── visualization/  # p5.js rendering components
+├── analysis/       # Data collection and statistics
+├── ml/            # Machine learning integration
+└── utils/         # Utility functions
 ```
-
-## 🧪 Development Status
-
-**Current Version**: 1.0.0
-
-This framework is actively developed as part of the EmptyAddress Network Autonomy Game project for social impact research and education.
-
-### Completed Features
-
-✅ Core agent system (BaseAgent, MovingAgent, NetworkAgent) with property management  
-✅ Environment systems (ContinuousSpace, Grid2D) with spatial indexing  
-✅ Scheduling systems (RandomScheduler, SequentialScheduler)  
-✅ Network system (NetworkManager) with social influence and analysis  
-✅ Interaction engine for agent-to-agent interactions  
-✅ Behavior trees for complex agent behaviors  
-✅ Performance benchmarking and optimization  
-✅ Visualization system with p5.js integration, animations, and effects  
-✅ Machine learning model integration with TensorFlow.js  
-✅ TypeScript configuration with strict type checking  
-✅ Build system with Vite and comprehensive exports  
-✅ Comprehensive test suite validating all features
-
-### In Progress
-
-🚧 Interactive demonstration examples  
-🚧 Documentation website and tutorials  
-🚧 Advanced ML model training examples
 
 ## 🤝 Contributing
 
-This project is developed as part of the EmptyAddress educational initiative. Please see our [contribution guidelines](CONTRIBUTING.md) for details on how to participate.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📚 Examples
+
+Check out the `/examples` directory for complete working examples:
+
+- `flocking-simulation.ts` - Classic boids flocking behavior
+- `epidemic-model.ts` - SIR disease spread model
+- `market-dynamics.ts` - Economic trading simulation
+- `social-network.ts` - Opinion dynamics in networks
+- `ecosystem.ts` - Predator-prey ecosystem
+
+## 🚧 Roadmap
+
+- [ ] WebGPU acceleration for massive simulations
+- [ ] 3D visualization with Three.js
+- [ ] Network analysis toolkit
+- [ ] Visual programming interface
+- [ ] Cloud simulation runner
+- [ ] Python bindings
+- [ ] Unity integration
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details
 
 ## 🙏 Acknowledgments
 
-- **Apne Aap Women Worldwide** for partnership and guidance
-- **p5.js Community** for visualization framework
-- **Agent-Based Modeling Community** for research foundations
+- Built with [p5.js](https://p5js.org/) for visualization
+- ML features powered by [TensorFlow.js](https://www.tensorflow.org/js)
+- Inspired by [NetLogo](https://ccl.northwestern.edu/netlogo/) and [Mesa](https://mesa.readthedocs.io/)
+
+## 📮 Contact
+
+- Issues: [GitHub Issues](https://github.com/anti-games-project/AgentJS/issues)
+- Discussions: [GitHub Discussions](https://github.com/anti-games-project/AgentJS/discussions)
+- Email: me@prayas.in
 
 ---
 
-**Educational Impact**: Every technical decision in this framework supports learning about trafficking dynamics, community empowerment, and social network effects in vulnerable populations.
+**AgentJS Core** - Empowering developers to model complex systems and create impactful simulations 🚀
