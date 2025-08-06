@@ -17,6 +17,7 @@ AgentJS Core is a comprehensive framework for building agent-based models (ABMs)
 - 🎨 **Built-in Visualization** - p5.js-powered rendering with camera controls and effects
 - 🧠 **ML Integration** - TensorFlow.js support for intelligent agent behaviors
 - 📊 **Data Analysis** - Comprehensive metrics collection and export capabilities
+- ⚙️ **JSON Configuration** - Define complete simulations via JSON configuration files
 - 🎮 **Game-Ready** - Designed for educational games and interactive simulations
 - 📦 **TypeScript First** - Full type safety and excellent IDE support
 - ⚡ **Performance Optimized** - Spatial indexing, object pooling, and efficient scheduling
@@ -261,6 +262,129 @@ await registry.loadModel('smart-agent', '/models/smart-agent.json');
 const agent = new SmartAgent('agent-1', registry.getModel('smart-agent'));
 ```
 
+### JSON Configuration System
+
+AgentJS Core features a powerful JSON configuration system that allows you to define entire simulations without writing code. Perfect for non-programmers, rapid prototyping, and sharing reproducible experiments.
+
+```typescript
+import { ConfigurationManager, SimulationController } from 'agentjs-core';
+
+// Load simulation from JSON configuration
+const config = {
+  "simulation": {
+    "name": "Flocking Behavior",
+    "steps": 1000,
+    "environment": {
+      "type": "continuous",
+      "width": 800,
+      "height": 600,
+      "boundaryType": "periodic"
+    }
+  },
+  "agents": [
+    {
+      "type": "FlockingAgent",
+      "count": 100,
+      "properties": {
+        "speed": { "min": 2, "max": 4 },
+        "visionRadius": 50,
+        "separationRadius": 25,
+        "cohesionStrength": 0.05,
+        "alignmentStrength": 0.05,
+        "separationStrength": 0.15
+      }
+    }
+  ],
+  "visualization": {
+    "frameRate": 60,
+    "agentSize": 3,
+    "showTrails": true,
+    "trailLength": 20,
+    "colorScheme": "velocity"
+  },
+  "data": {
+    "collectEvery": 10,
+    "metrics": ["averageSpeed", "clusterCount", "polarization"],
+    "export": {
+      "format": "csv",
+      "filename": "flocking-data.csv"
+    }
+  }
+};
+
+// Initialize and run simulation
+const manager = new ConfigurationManager();
+const simulation = manager.loadConfiguration(config);
+const controller = new SimulationController(simulation);
+
+// Run with automatic data collection
+controller.run({
+  onStep: (step, metrics) => console.log(`Step ${step}:`, metrics),
+  onComplete: (results) => console.log('Simulation complete:', results)
+});
+```
+
+#### ML Model Configuration
+
+```json
+{
+  "ml": {
+    "models": [
+      {
+        "name": "predator-brain",
+        "type": "reinforcement",
+        "architecture": {
+          "inputSize": 8,
+          "hiddenLayers": [64, 32],
+          "outputSize": 4,
+          "activation": "relu"
+        },
+        "training": {
+          "episodes": 1000,
+          "batchSize": 32,
+          "learningRate": 0.001,
+          "rewardFunction": "custom"
+        }
+      }
+    ],
+    "agentMapping": {
+      "Predator": "predator-brain"
+    }
+  }
+}
+```
+
+#### Parameter Sweeps
+
+```typescript
+import { ParameterTuner } from 'agentjs-core';
+
+// Define parameter sweep configuration
+const sweepConfig = {
+  "baseConfig": "configs/base-simulation.json",
+  "parameters": [
+    {
+      "path": "agents[0].properties.speed",
+      "values": [1, 2, 3, 4, 5]
+    },
+    {
+      "path": "agents[0].properties.visionRadius", 
+      "range": { "min": 20, "max": 100, "step": 20 }
+    }
+  ],
+  "repetitions": 5,
+  "parallel": true
+};
+
+// Run parameter sweep
+const tuner = new ParameterTuner();
+const results = await tuner.sweep(sweepConfig);
+
+// Analyze results
+console.log('Optimal parameters:', results.optimal);
+console.log('Parameter sensitivity:', results.sensitivity);
+```
+
 ### Data Collection & Analysis
 
 ```typescript
@@ -308,6 +432,8 @@ exporter.toJSON('/data/simulation-results.json');
 - **Behaviors**: Reusable action patterns (via behavior trees)
 - **Networks**: Agent relationships and social connections
 - **Visualization**: Real-time rendering of agent states and interactions
+- **Configuration**: JSON-based simulation definitions for code-free modeling
+- **Parameter Tuning**: Automated exploration of parameter spaces
 
 ### API Reference
 
