@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentJS Core - Agent-Based Modeling Framework</title>
+    <meta name="description" content="TypeScript-first agent-based modeling framework with p5.js visualization and ML integration">
+    <link rel="canonical" href="https://anti-games-project.github.io/AgentJS/">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 4rem 0;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .btn-primary:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: rgba(0,0,0,0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .main-content {
+            background: white;
+            margin-top: -2rem;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -8px 32px rgba(0,0,0,0.1);
+            min-height: 60vh;
+        }
+        
+        .content-section {
+            padding: 3rem 0;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .quick-start {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 3rem 0;
+        }
+        
+        .quick-start h2 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Monaco', 'Consolas', monospace;
+            overflow-x: auto;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #666;
+            border-top: 1px solid #eee;
+        }
+        
+        .npm-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #cb3837;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .github-stats {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.5rem; }
+            .header .subtitle { font-size: 1.1rem; }
+            .actions { flex-direction: column; align-items: center; }
+            .btn { width: 100%; max-width: 300px; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>AgentJS Core</h1>
+            <p class="subtitle">TypeScript-first Agent-Based Modeling Framework</p>
+            
+            <div class="github-stats">
+                <span class="stat-badge">🚀 v1.0.1</span>
+                <span class="stat-badge">📊 ABM Framework</span>
+                <span class="stat-badge">🎨 p5.js Viz</span>
+                <span class="stat-badge">🧠 ML Ready</span>
+            </div>
+            
+            <div class="actions">
+                <a href="https://www.npmjs.com/package/agentjs-core" class="npm-badge">
+                    📦 npm install agentjs-core
+                </a>
+                <a href="https://github.com/anti-games-project/AgentJS/wiki" class="btn btn-primary">
+                    📚 Documentation
+                </a>
+                <a href="https://github.com/anti-games-project/AgentJS" class="btn btn-secondary">
+                    ⭐ View on GitHub
+                </a>
+                <a href="https://github.com/anti-games-project/AgentJS/tree/main/examples" class="btn btn-secondary">
+                    🎮 Try Examples
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="container">
+            <div class="content-section">
+                <div class="quick-start">
+                    <h2>🚀 Quick Start</h2>
+                    <p>Create your first agent-based simulation in minutes:</p>
+                    
+                    <div class="code-block">npm install agentjs-core p5</div>
+                    
+                    <div class="code-block">import { BaseAgent, ContinuousSpace, AgentManager } from 'agentjs-core';
+
+class RandomWalker extends BaseAgent {
+  step(): void {
+    const angle = Math.random() * Math.PI * 2;
+    this.move(Math.cos(angle) * 2, Math.sin(angle) * 2);
+  }
+}
+
+const environment = new ContinuousSpace(800, 600);
+const manager = new AgentManager(environment);
+manager.addAgent(new RandomWalker(), { x: 400, y: 300 });</div>
+                </div>
+                
+                <div class="features">
+                    <div class="feature-card">
+                        <h3>🎯 TypeScript-First</h3>
+                        <p>Built with TypeScript for type safety, autocomplete, and modern development experience. Comprehensive type definitions for all APIs.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>🎨 Visual Excellence</h3>
+                        <p>Integrated p5.js visualization with customizable rendering, interactive controls, heat maps, and trail effects.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>⚙️ JSON Configuration</h3>
+                        <p>Define complete simulations using JSON configs. No coding required for standard models. Perfect for researchers and educators.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>🧠 ML Integration</h3>
+                        <p>Built-in TensorFlow.js support for reinforcement learning, behavior cloning, and neural network-driven agent behaviors.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>📊 Data Collection</h3>
+                        <p>Comprehensive data collection with CSV/JSON export, statistical analysis, and Chart.js integration for real-time plotting.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>🌐 Multi-Environment</h3>
+                        <p>Support for continuous spaces, discrete grids, and network topologies. Spatial indexing for high-performance simulations.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>🎓 Educational Focus</h3>
+                        <p>Designed for teaching and learning ABM concepts. Extensive examples, tutorials, and classroom-ready materials.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>🔧 Research Ready</h3>
+                        <p>Parameter sweeps, optimization algorithms, reproducible experiments with seeded randomness, and publication-quality output.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2 style="text-align: center; margin-bottom: 2rem; color: #333;">🎮 Example Models</h2>
+                <div class="features">
+                    <div class="feature-card">
+                        <h3>🐦 Flocking Behavior</h3>
+                        <p>Classic boids simulation with separation, alignment, and cohesion rules. Demonstrates emergent collective behavior.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>🦠 Epidemic Models</h3>
+                        <p>SIR disease transmission models with spatial dynamics, intervention policies, and real-world parameter fitting.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>🏘️ Urban Dynamics</h3>
+                        <p>Schelling segregation, traffic flow, and city growth models for urban planning and social policy research.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>🌱 Ecosystem Models</h3>
+                        <p>Predator-prey dynamics, population ecology, and environmental resource competition with realistic parameters.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div class="container">
+            <p>Built with ❤️ for the agent-based modeling community</p>
+            <p><a href="https://github.com/anti-games-project/AgentJS/wiki" style="color: #667eea;">Documentation</a> • 
+               <a href="https://github.com/anti-games-project/AgentJS" style="color: #667eea;">GitHub</a> • 
+               <a href="https://www.npmjs.com/package/agentjs-core" style="color: #667eea;">npm</a></p>
+        </div>
+    </div>
+</body>
+</html>

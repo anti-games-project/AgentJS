@@ -1,0 +1,59 @@
+# GitHub Pages configuration for AgentJS Core
+title: "AgentJS Core"
+description: "TypeScript-first agent-based modeling framework with p5.js visualization and ML integration"
+
+# Theme and styling  
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Site settings
+url: "https://anti-games-project.github.io"
+baseurl: "/AgentJS"
+repository: "anti-games-project/AgentJS"
+
+# Author info
+author:
+  name: "Prayas Abhinav"
+  email: "prayas@example.com"
+
+# Social links
+github_username: anti-games-project
+twitter_username: 
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+timezone: Asia/Kolkata
+
+# Collections
+collections:
+  examples:
+    output: true
+    permalink: /:collection/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      author: "Prayas Abhinav"
+  - scope:
+      path: ""
+      type: "examples"
+    values:
+      layout: "example"
+
+# Exclude from build
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
