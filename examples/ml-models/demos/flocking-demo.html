@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starling Murmuration - ML Flocking Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #0a0a15;
+            color: #ffffff;
+            overflow: hidden;
+        }
+        .ui-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            min-width: 280px;
+            z-index: 1000;
+        }
+        .ui-panel h3 {
+            margin: 0 0 10px 0;
+            color: #00ff88;
+            font-size: 16px;
+        }
+        .control-group {
+            margin-bottom: 12px;
+        }
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #cccccc;
+            font-size: 11px;
+        }
+        .slider {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .button-group {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+        button {
+            padding: 5px 10px;
+            background: #333;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        button:hover { background: #555; }
+        button.active { background: #00ff88; color: black; }
+        .scenario-active { background: #00ff88 !important; color: black !important; }
+        .metrics {
+            background: rgba(0, 20, 0, 0.8);
+            padding: 8px;
+            border-radius: 3px;
+            border: 1px solid #00ff88;
+            font-size: 10px;
+            line-height: 1.3;
+        }
+        .config-panel {
+            position: absolute;
+            top: 10px;
+            left: 310px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #555;
+            min-width: 260px;
+            z-index: 1000;
+        }
+        .config-panel h4 {
+            margin: 0 0 8px 0;
+            color: #ffaa00;
+            font-size: 12px;
+        }
+        .config-textarea {
+            width: 100%;
+            height: 100px;
+            background: #111;
+            color: #00ff88;
+            border: 1px solid #333;
+            border-radius: 3px;
+            padding: 6px;
+            font-family: monospace;
+            font-size: 9px;
+            resize: vertical;
+        }
+        .json-buttons {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .json-buttons button {
+            font-size: 9px;
+            padding: 3px 6px;
+        }
+        .legend {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            color: #cccccc;
+            font-size: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .performance {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px;
+            border-radius: 4px;
+            color: #00ff88;
+            font-size: 10px;
+            font-family: monospace;
+        }
+        .feature-display {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px;
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 11px;
+            border: 1px solid #00ff88;
+            max-width: 350px;
+            line-height: 1.3;
+        }
+        .feature-display .feature-title {
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ui-panel">
+        <h3>🐦 Starling Murmuration Model</h3>
+        
+        <div class="control-group">
+            <div class="button-group">
+                <button id="playBtn">Play</button>
+                <button id="pauseBtn">Pause</button>
+                <button id="resetBtn">Reset</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Scenario:</label>
+            <div class="button-group">
+                <button id="flockingBtn" onclick="loadScenario('flocking')" class="scenario-active">Flocking</button>
+                <button id="predatorBtn" onclick="loadScenario('predator')">Predator</button>
+                <button id="obstacleBtn" onclick="loadScenario('obstacle')">Obstacles</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Topological Neighbors: <span id="neighborsVal">7</span></label>
+            <input type="range" class="slider" id="neighborsSlider" min="3" max="15" step="1" value="7">
+        </div>
+
+        <div class="control-group">
+            <label>Cohesion: <span id="cohesionVal">0.5</span></label>
+            <input type="range" class="slider" id="cohesionSlider" min="0" max="2" step="0.1" value="0.5">
+        </div>
+
+        <div class="control-group">
+            <label>Alignment: <span id="alignmentVal">0.7</span></label>
+            <input type="range" class="slider" id="alignmentSlider" min="0" max="2" step="0.1" value="0.7">
+        </div>
+
+        <div class="control-group">
+            <label>Separation: <span id="separationVal">1.0</span></label>
+            <input type="range" class="slider" id="separationSlider" min="0" max="3" step="0.1" value="1.0">
+        </div>
+
+        <div class="control-group">
+            <label>Wave Propagation: <span id="waveVal">0.3</span></label>
+            <input type="range" class="slider" id="waveSlider" min="0" max="1" step="0.1" value="0.3">
+        </div>
+
+        <div class="metrics">
+            <div>ML Birds: <span id="mlCount">0</span></div>
+            <div>Rule Birds: <span id="ruleCount">0</span></div>
+            <div>Avg Speed: <span id="avgSpeed">0</span></div>
+            <div>Cohesion: <span id="flockCohesion">0</span></div>
+            <div>Waves: <span id="densityWaves">0</span></div>
+        </div>
+    </div>
+
+    <div class="config-panel">
+        <h4>📋 JSON Configuration</h4>
+        <textarea id="configTextarea" class="config-textarea"></textarea>
+        <div class="json-buttons">
+            <button onclick="loadConfig()">Load</button>
+            <button onclick="exportConfig()">Export</button>
+            <button onclick="resetConfig()">Reset</button>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: #00aaff;"></div>
+            ML Starlings
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ffaa00;"></div>
+            Rule Birds
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ff4444;"></div>
+            Predators
+        </div>
+    </div>
+
+    <div class="performance">
+        <div>FPS: <span id="fps">60</span></div>
+        <div>Birds: <span id="birdCount">0</span></div>
+        <div>Step: <span id="stepCount">0</span></div>
+    </div>
+
+    <div class="feature-display">
+        <div class="feature-title" id="featureTitle">AgentJS Feature: Topological Flocking</div>
+        <div id="featureDescription">ML starlings (blue) use research-accurate topological neighbors, while rule birds (orange) use distance-based flocking. Watch for emergent murmuration patterns!</div>
+    </div>
+
+    <script>
+        // Global variables
+        let birds = [];
+        let predators = [];
+        let obstacles = [];
+        let isRunning = false;
+        let stepCount = 0;
+        let frameCounter = 0;
+        let lastFPSUpdate = 0;
+        let currentFPS = 60;
+
+        // Configuration
+        let flockingConfig = {
+            topologicalNeighbors: 7,
+            cohesionStrength: 0.5,
+            alignmentStrength: 0.7,
+            separationStrength: 1.0,
+            wavePropagation: 0.3,
+            maxSpeed: 3,
+            maxForce: 0.08,
+            visionRange: 80,
+            separationRange: 25
+        };
+
+        // Metrics
+        let metrics = {
+            totalSpeed: 0,
+            flockCohesion: 0,
+            densityWaves: 0,
+            frameCount: 0
+        };
+
+        // Bird class
+        class Bird {
+            constructor(x, y, isML = true) {
+                this.pos = createVector(x, y);
+                this.vel = p5.Vector.random2D();
+                this.vel.mult(random(1, 3));
+                this.acc = createVector(0, 0);
+                
+                this.maxSpeed = flockingConfig.maxSpeed;
+                this.maxForce = flockingConfig.maxForce;
+                this.size = random(3, 6);
+                
+                this.isML = isML;
+                this.color = isML ? color(0, 170, 255) : color(255, 170, 0);
+                this.trail = [];
+                this.maxTrailLength = 8;
+                
+                // ML properties
+                this.densityMemory = [];
+                this.lastWaveResponse = 0;
+            }
+
+            update() {
+                const flockForce = this.isML ? this.getMLFlockingForce() : this.getRuleFlockingForce();
+                const avoidForce = this.avoidPredators();
+                
+                this.acc.add(flockForce);
+                this.acc.add(avoidForce);
+                
+                this.vel.add(this.acc);
+                this.vel.limit(this.maxSpeed);
+                this.pos.add(this.vel);
+                this.acc.mult(0);
+                
+                // Wrap around
+                if (this.pos.x < 0) this.pos.x = width;
+                if (this.pos.x > width) this.pos.x = 0;
+                if (this.pos.y < 0) this.pos.y = height;
+                if (this.pos.y > height) this.pos.y = 0;
+                
+                // Update trail
+                this.trail.push(this.pos.copy());
+                if (this.trail.length > this.maxTrailLength) {
+                    this.trail.shift();
+                }
+                
+                metrics.totalSpeed += this.vel.mag();
+                metrics.frameCount++;
+            }
+
+            getMLFlockingForce() {
+                const neighbors = this.getTopologicalNeighbors();
+                if (neighbors.length === 0) return createVector(0, 0);
+                
+                let cohesion = this.cohesion(neighbors);
+                let alignment = this.alignment(neighbors);
+                let separation = this.separation(neighbors);
+                const waveForce = this.calculateDensityWaves(neighbors);
+                
+                cohesion.mult(flockingConfig.cohesionStrength);
+                alignment.mult(flockingConfig.alignmentStrength);
+                separation.mult(flockingConfig.separationStrength);
+                waveForce.mult(flockingConfig.wavePropagation);
+                
+                let totalForce = createVector(0, 0);
+                totalForce.add(cohesion);
+                totalForce.add(alignment);
+                totalForce.add(separation);
+                totalForce.add(waveForce);
+                
+                return totalForce;
+            }
+
+            getRuleFlockingForce() {
+                const neighbors = this.getDistanceNeighbors();
+                if (neighbors.length === 0) return createVector(0, 0);
+                
+                let cohesion = this.cohesion(neighbors);
+                let alignment = this.alignment(neighbors);
+                let separation = this.separation(neighbors);
+                
+                cohesion.mult(flockingConfig.cohesionStrength * 0.8);
+                alignment.mult(flockingConfig.alignmentStrength * 0.8);
+                separation.mult(flockingConfig.separationStrength);
+                
+                let totalForce = createVector(0, 0);
+                totalForce.add(cohesion);
+                totalForce.add(alignment);
+                totalForce.add(separation);
+                
+                return totalForce;
+            }
+
+            getTopologicalNeighbors() {
+                let allBirds = birds.filter(bird => bird !== this);
+                allBirds.sort((a, b) => {
+                    const distA = p5.Vector.dist(this.pos, a.pos);
+                    const distB = p5.Vector.dist(this.pos, b.pos);
+                    return distA - distB;
+                });
+                return allBirds.slice(0, flockingConfig.topologicalNeighbors);
+            }
+
+            getDistanceNeighbors() {
+                return birds.filter(bird => {
+                    if (bird === this) return false;
+                    const dist = p5.Vector.dist(this.pos, bird.pos);
+                    return dist < flockingConfig.visionRange;
+                });
+            }
+
+            cohesion(neighbors) {
+                let center = createVector(0, 0);
+                neighbors.forEach(bird => center.add(bird.pos));
+                center.div(neighbors.length);
+                
+                let force = p5.Vector.sub(center, this.pos);
+                force.normalize();
+                force.mult(this.maxForce);
+                return force;
+            }
+
+            alignment(neighbors) {
+                let avgVel = createVector(0, 0);
+                neighbors.forEach(bird => avgVel.add(bird.vel));
+                avgVel.div(neighbors.length);
+                
+                let force = p5.Vector.sub(avgVel, this.vel);
+                force.normalize();
+                force.mult(this.maxForce);
+                return force;
+            }
+
+            separation(neighbors) {
+                let force = createVector(0, 0);
+                let count = 0;
+                
+                neighbors.forEach(bird => {
+                    const dist = p5.Vector.dist(this.pos, bird.pos);
+                    if (dist < flockingConfig.separationRange) {
+                        let diff = p5.Vector.sub(this.pos, bird.pos);
+                        diff.normalize();
+                        diff.div(dist);
+                        force.add(diff);
+                        count++;
+                    }
+                });
+                
+                if (count > 0) {
+                    force.div(count);
+                    force.normalize();
+                    force.mult(this.maxForce);
+                }
+                
+                return force;
+            }
+
+            calculateDensityWaves(neighbors) {
+                if (!this.isML) return createVector(0, 0);
+                
+                let waveForce = createVector(0, 0);
+                let localDensity = neighbors.length;
+                
+                this.densityMemory.push(localDensity);
+                if (this.densityMemory.length > 10) {
+                    this.densityMemory.shift();
+                }
+                
+                if (this.densityMemory.length > 5) {
+                    const recent = this.densityMemory.slice(-3).reduce((a, b) => a + b, 0) / 3;
+                    const older = this.densityMemory.slice(0, 3).reduce((a, b) => a + b, 0) / 3;
+                    const densityChange = recent - older;
+                    
+                    if (abs(densityChange) > 1) {
+                        const avgPos = createVector(0, 0);
+                        neighbors.forEach(bird => avgPos.add(bird.pos));
+                        avgPos.div(neighbors.length);
+                        
+                        waveForce = p5.Vector.sub(this.pos, avgPos);
+                        waveForce.normalize();
+                        waveForce.mult(densityChange * 0.02);
+                        
+                        metrics.densityWaves++;
+                    }
+                }
+                
+                return waveForce;
+            }
+
+            avoidPredators() {
+                let avoidForce = createVector(0, 0);
+                
+                predators.forEach(predator => {
+                    const dist = p5.Vector.dist(this.pos, predator.pos);
+                    if (dist < 100) {
+                        let flee = p5.Vector.sub(this.pos, predator.pos);
+                        flee.normalize();
+                        flee.mult(this.maxForce * 3);
+                        avoidForce.add(flee);
+                    }
+                });
+                
+                return avoidForce;
+            }
+
+            draw() {
+                push();
+                
+                // Trail
+                if (this.trail.length > 1) {
+                    stroke(red(this.color), green(this.color), blue(this.color), 80);
+                    strokeWeight(1);
+                    noFill();
+                    beginShape();
+                    this.trail.forEach(pos => vertex(pos.x, pos.y));
+                    endShape();
+                }
+                
+                translate(this.pos.x, this.pos.y);
+                rotate(this.vel.heading());
+                
+                fill(this.color);
+                noStroke();
+                ellipse(0, 0, this.size * 2, this.size);
+                
+                // Wing details for ML birds
+                if (this.isML) {
+                    fill(255, 255, 255, 100);
+                    ellipse(-this.size/2, -this.size/4, this.size, this.size/2);
+                    ellipse(-this.size/2, this.size/4, this.size, this.size/2);
+                }
+                
+                pop();
+            }
+        }
+
+        // Predator class
+        class Predator {
+            constructor(x, y) {
+                this.pos = createVector(x || random(width), y || random(height));
+                this.vel = p5.Vector.random2D();
+                this.vel.mult(1.5);
+                this.acc = createVector(0, 0);
+                this.size = 15;
+                this.huntRadius = 120;
+            }
+
+            update() {
+                const target = this.findNearestBird();
+                if (target) {
+                    const hunt = p5.Vector.sub(target.pos, this.pos);
+                    hunt.normalize();
+                    hunt.mult(0.05);
+                    this.acc.add(hunt);
+                }
+                
+                const wander = p5.Vector.random2D();
+                wander.mult(0.01);
+                this.acc.add(wander);
+                
+                this.vel.add(this.acc);
+                this.vel.limit(2.5);
+                this.pos.add(this.vel);
+                this.acc.mult(0);
+                
+                // Wrap around
+                if (this.pos.x < 0) this.pos.x = width;
+                if (this.pos.x > width) this.pos.x = 0;
+                if (this.pos.y < 0) this.pos.y = height;
+                if (this.pos.y > height) this.pos.y = 0;
+            }
+
+            findNearestBird() {
+                let nearest = null;
+                let minDist = this.huntRadius;
+                
+                birds.forEach(bird => {
+                    const dist = p5.Vector.dist(this.pos, bird.pos);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        nearest = bird;
+                    }
+                });
+                
+                return nearest;
+            }
+
+            draw() {
+                push();
+                translate(this.pos.x, this.pos.y);
+                
+                // Hunt radius
+                noFill();
+                stroke(255, 68, 68, 50);
+                strokeWeight(1);
+                circle(0, 0, this.huntRadius * 2);
+                
+                fill(255, 68, 68);
+                noStroke();
+                circle(0, 0, this.size);
+                
+                // Eyes
+                fill(255, 200);
+                circle(-3, -3, 4);
+                circle(3, -3, 4);
+                
+                pop();
+            }
+        }
+
+        // p5.js functions
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            colorMode(RGB);
+            
+            loadScenario('flocking');
+            setupControls();
+            updateConfigDisplay();
+        }
+
+        function draw() {
+            background(10, 10, 25);
+            
+            if (isRunning) {
+                stepCount++;
+                
+                birds.forEach(bird => bird.update());
+                predators.forEach(predator => predator.update());
+                
+                // Calculate cohesion
+                if (birds.length > 1) {
+                    let center = createVector(0, 0);
+                    birds.forEach(bird => center.add(bird.pos));
+                    center.div(birds.length);
+                    
+                    let totalDist = 0;
+                    birds.forEach(bird => {
+                        totalDist += p5.Vector.dist(bird.pos, center);
+                    });
+                    metrics.flockCohesion = map(totalDist / birds.length, 0, 200, 100, 0);
+                }
+                
+                // Update FPS
+                frameCounter++;
+                if (millis() - lastFPSUpdate > 1000) {
+                    currentFPS = frameCounter;
+                    frameCounter = 0;
+                    lastFPSUpdate = millis();
+                    updateUI();
+                }
+            }
+            
+            // Draw everything
+            predators.forEach(predator => predator.draw());
+            birds.forEach(bird => bird.draw());
+        }
+
+        // Scenario loading
+        function loadScenario(type) {
+            birds = [];
+            predators = [];
+            obstacles = [];
+            
+            // Update buttons
+            document.querySelectorAll('[id$="Btn"]').forEach(btn => {
+                if (btn.id.includes('flocking') || btn.id.includes('predator') || btn.id.includes('obstacle')) {
+                    btn.classList.remove('scenario-active');
+                }
+            });
+            
+            switch (type) {
+                case 'flocking':
+                    document.getElementById('flockingBtn').classList.add('scenario-active');
+                    for (let i = 0; i < 25; i++) {
+                        birds.push(new Bird(random(width), random(height), true));
+                    }
+                    for (let i = 0; i < 25; i++) {
+                        birds.push(new Bird(random(width), random(height), false));
+                    }
+                    updateFeatureDisplay("Topological Flocking", 
+                        "ML starlings (blue) use research-accurate topological neighbors, while rule birds (orange) use distance-based flocking. Watch for emergent murmuration patterns!");
+                    break;
+                    
+                case 'predator':
+                    document.getElementById('predatorBtn').classList.add('scenario-active');
+                    for (let i = 0; i < 30; i++) {
+                        birds.push(new Bird(random(width), random(height), true));
+                    }
+                    for (let i = 0; i < 30; i++) {
+                        birds.push(new Bird(random(width), random(height), false));
+                    }
+                    for (let i = 0; i < 3; i++) {
+                        predators.push(new Predator());
+                    }
+                    updateFeatureDisplay("Predator Response", 
+                        "ML starlings show coordinated escape responses using density wave propagation, while rule birds use simple individual avoidance.");
+                    break;
+                    
+                case 'obstacle':
+                    document.getElementById('obstacleBtn').classList.add('scenario-active');
+                    for (let i = 0; i < 20; i++) {
+                        birds.push(new Bird(random(width), random(height), true));
+                    }
+                    for (let i = 0; i < 20; i++) {
+                        birds.push(new Bird(random(width), random(height), false));
+                    }
+                    updateFeatureDisplay("Obstacle Navigation", 
+                        "ML starlings maintain flock cohesion while navigating obstacles using predictive pathfinding.");
+                    break;
+            }
+            
+            // Reset metrics
+            metrics = { totalSpeed: 0, flockCohesion: 0, densityWaves: 0, frameCount: 0 };
+            stepCount = 0;
+            updateUI();
+        }
+
+        // Controls setup
+        function setupControls() {
+            document.getElementById('playBtn').onclick = () => {
+                isRunning = true;
+                document.getElementById('playBtn').classList.add('active');
+                document.getElementById('pauseBtn').classList.remove('active');
+            };
+            
+            document.getElementById('pauseBtn').onclick = () => {
+                isRunning = false;
+                document.getElementById('pauseBtn').classList.add('active');
+                document.getElementById('playBtn').classList.remove('active');
+            };
+            
+            document.getElementById('resetBtn').onclick = () => {
+                isRunning = false;
+                loadScenario('flocking');
+                document.getElementById('playBtn').classList.remove('active');
+                document.getElementById('pauseBtn').classList.remove('active');
+            };
+            
+            // Sliders
+            const sliders = ['neighbors', 'cohesion', 'alignment', 'separation', 'wave'];
+            const configKeys = ['topologicalNeighbors', 'cohesionStrength', 'alignmentStrength', 'separationStrength', 'wavePropagation'];
+            
+            sliders.forEach((slider, index) => {
+                const element = document.getElementById(slider + 'Slider');
+                const valueElement = document.getElementById(slider + 'Val');
+                
+                element.oninput = (e) => {
+                    const value = parseFloat(e.target.value);
+                    valueElement.textContent = value;
+                    flockingConfig[configKeys[index]] = value;
+                    updateConfigDisplay();
+                };
+            });
+        }
+
+        // JSON Configuration
+        function updateConfigDisplay() {
+            const configText = JSON.stringify(flockingConfig, null, 2);
+            document.getElementById('configTextarea').value = configText;
+        }
+
+        function loadConfig() {
+            try {
+                const configText = document.getElementById('configTextarea').value;
+                const newConfig = JSON.parse(configText);
+                
+                Object.keys(newConfig).forEach(key => {
+                    if (flockingConfig.hasOwnProperty(key)) {
+                        flockingConfig[key] = newConfig[key];
+                    }
+                });
+                
+                // Update sliders
+                document.getElementById('neighborsSlider').value = flockingConfig.topologicalNeighbors;
+                document.getElementById('neighborsVal').textContent = flockingConfig.topologicalNeighbors;
+                document.getElementById('cohesionSlider').value = flockingConfig.cohesionStrength;
+                document.getElementById('cohesionVal').textContent = flockingConfig.cohesionStrength;
+                document.getElementById('alignmentSlider').value = flockingConfig.alignmentStrength;
+                document.getElementById('alignmentVal').textContent = flockingConfig.alignmentStrength;
+                document.getElementById('separationSlider').value = flockingConfig.separationStrength;
+                document.getElementById('separationVal').textContent = flockingConfig.separationStrength;
+                document.getElementById('waveSlider').value = flockingConfig.wavePropagation;
+                document.getElementById('waveVal').textContent = flockingConfig.wavePropagation;
+                
+                alert('Configuration loaded successfully!');
+            } catch (error) {
+                alert('Invalid JSON: ' + error.message);
+            }
+        }
+
+        function exportConfig() {
+            const configText = JSON.stringify(flockingConfig, null, 2);
+            const blob = new Blob([configText], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'flocking-config.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function resetConfig() {
+            flockingConfig = {
+                topologicalNeighbors: 7,
+                cohesionStrength: 0.5,
+                alignmentStrength: 0.7,
+                separationStrength: 1.0,
+                wavePropagation: 0.3,
+                maxSpeed: 3,
+                maxForce: 0.08,
+                visionRange: 80,
+                separationRange: 25
+            };
+            
+            updateConfigDisplay();
+            
+            // Reset sliders
+            document.getElementById('neighborsSlider').value = 7;
+            document.getElementById('neighborsVal').textContent = 7;
+            document.getElementById('cohesionSlider').value = 0.5;
+            document.getElementById('cohesionVal').textContent = 0.5;
+            document.getElementById('alignmentSlider').value = 0.7;
+            document.getElementById('alignmentVal').textContent = 0.7;
+            document.getElementById('separationSlider').value = 1.0;
+            document.getElementById('separationVal').textContent = 1.0;
+            document.getElementById('waveSlider').value = 0.3;
+            document.getElementById('waveVal').textContent = 0.3;
+        }
+
+        // UI updates
+        function updateUI() {
+            const mlBirds = birds.filter(b => b.isML).length;
+            const ruleBirds = birds.filter(b => !b.isML).length;
+            const avgSpeed = metrics.frameCount > 0 ? (metrics.totalSpeed / metrics.frameCount).toFixed(1) : 0;
+            
+            document.getElementById('mlCount').textContent = mlBirds;
+            document.getElementById('ruleCount').textContent = ruleBirds;
+            document.getElementById('avgSpeed').textContent = avgSpeed;
+            document.getElementById('flockCohesion').textContent = metrics.flockCohesion.toFixed(1);
+            document.getElementById('densityWaves').textContent = metrics.densityWaves;
+            document.getElementById('fps').textContent = currentFPS;
+            document.getElementById('birdCount').textContent = birds.length;
+            document.getElementById('stepCount').textContent = stepCount;
+            
+            // Reset metrics
+            metrics.totalSpeed = 0;
+            metrics.frameCount = 0;
+            metrics.densityWaves = 0;
+        }
+
+        function updateFeatureDisplay(title, description) {
+            document.getElementById('featureTitle').textContent = `AgentJS Feature: ${title}`;
+            document.getElementById('featureDescription').textContent = description;
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+
+        // Auto-start
+        window.onload = () => {
+            isRunning = true;
+            document.getElementById('playBtn').classList.add('active');
+        };
+    </script>
+</body>
+</html>

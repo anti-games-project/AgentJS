@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentJS ML Models - Interactive Demos</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: linear-gradient(135deg, #0a0a15 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #00ff88;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+
+        .demos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .demo-card {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.1);
+        }
+
+        .demo-card h3 {
+            color: #00ff88;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-card p {
+            color: #cccccc;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .features-list {
+            margin-bottom: 20px;
+        }
+
+        .features-list h4 {
+            color: #ffaa00;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .features-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features-list li {
+            color: #cccccc;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .features-list li:before {
+            content: "▶";
+            color: #00ff88;
+            position: absolute;
+            left: 0;
+        }
+
+        .demo-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .demo-button {
+            padding: 12px 20px;
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: black;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .demo-button:hover {
+            background: linear-gradient(45deg, #00cc66, #00aa55);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .demo-button.secondary {
+            background: linear-gradient(45deg, #333, #555);
+            color: white;
+        }
+
+        .demo-button.secondary:hover {
+            background: linear-gradient(45deg, #555, #777);
+        }
+
+        .config-section {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .config-section h4 {
+            color: #ffaa00;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .config-example {
+            background: #111;
+            color: #00ff88;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            border: 1px solid #333;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .tech-tag {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #333;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            color: #cccccc;
+        }
+
+        .ml-agents {
+            color: #00ff88;
+        }
+
+        .rule-agents {
+            color: #ffaa00;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .github-link {
+            color: #00ff88;
+            text-decoration: none;
+        }
+
+        .github-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 AgentJS ML Models</h1>
+        <p>Interactive Demonstrations of Machine Learning Enhanced Agent-Based Modeling</p>
+    </div>
+
+    <div class="demos-grid">
+        <!-- Resource Seeking Demo -->
+        <div class="demo-card">
+            <h3>🎯 Intelligent Resource Seeking</h3>
+            <p>Compare ML-powered pathfinding agents with rule-based agents navigating complex environments with obstacles and resources.</p>
+            
+            <div class="features-list">
+                <h4>Key Features:</h4>
+                <ul>
+                    <li><span class="ml-agents">ML Agents:</span> Sophisticated obstacle avoidance and pathfinding</li>
+                    <li><span class="rule-agents">Rule Agents:</span> Simple collision detection</li>
+                    <li>Real-time parameter adjustment via sliders</li>
+                    <li>Solid obstacle collision system</li>
+                    <li>Dynamic resource respawning</li>
+                </ul>
+            </div>
+
+            <table class="comparison-table">
+                <tr>
+                    <th>Capability</th>
+                    <th>ML Agents</th>
+                    <th>Rule Agents</th>
+                </tr>
+                <tr>
+                    <td>Pathfinding</td>
+                    <td>Multi-obstacle consideration</td>
+                    <td>Single obstacle avoidance</td>
+                </tr>
+                <tr>
+                    <td>Detection Range</td>
+                    <td>60+ pixels</td>
+                    <td>40 pixels</td>
+                </tr>
+                <tr>
+                    <td>Resource Strategy</td>
+                    <td>Energy-based urgency</td>
+                    <td>Simple hunger-driven</td>
+                </tr>
+            </table>
+
+            <div class="tech-stack">
+                <span class="tech-tag">p5.js</span>
+                <span class="tech-tag">Vector Math</span>
+                <span class="tech-tag">Collision Detection</span>
+                <span class="tech-tag">Real-time Controls</span>
+            </div>
+
+            <div class="demo-buttons">
+                <a href="p5-behavior-demo.html" class="demo-button">🚀 Launch Demo</a>
+                <button onclick="showConfig('resource')" class="demo-button secondary">📋 View Config</button>
+            </div>
+
+            <div id="resource-config" class="config-section" style="display: none;">
+                <h4>JSON Configuration Example:</h4>
+                <div class="config-example">{
+  "explorationRate": 0.3,
+  "socialInfluence": 0.5,
+  "resourceSeeking": 0.7,
+  "riskTolerance": 0.4,
+  "resourcePursuit": 0.8,
+  "maxSpeed": 2,
+  "maxForce": 0.1,
+  "visionRange": 150,
+  "pursuitForceMultiplier": 1.5
+}</div>
+                <p><strong>Configuration Features:</strong> Load/save JSON configs, real-time parameter adjustment, export settings for reproduction.</p>
+            </div>
+        </div>
+
+        <!-- Flocking Demo -->
+        <div class="demo-card">
+            <h3>🐦 Starling Murmuration</h3>
+            <p>Research-accurate flocking simulation comparing topological neighbors (ML) vs distance-based flocking (rule-based).</p>
+            
+            <div class="features-list">
+                <h4>Key Features:</h4>
+                <ul>
+                    <li><span class="ml-agents">ML Starlings:</span> Topological neighbors (closest N birds)</li>
+                    <li><span class="rule-agents">Rule Birds:</span> Distance-based neighbors</li>
+                    <li>Density wave propagation simulation</li>
+                    <li>Predator response scenarios</li>
+                    <li>Emergent murmuration patterns</li>
+                </ul>
+            </div>
+
+            <table class="comparison-table">
+                <tr>
+                    <th>Behavior</th>
+                    <th>ML Starlings</th>
+                    <th>Rule Birds</th>
+                </tr>
+                <tr>
+                    <td>Neighbor Selection</td>
+                    <td>Topological (research-based)</td>
+                    <td>Distance threshold</td>
+                </tr>
+                <tr>
+                    <td>Wave Response</td>
+                    <td>Density gradient analysis</td>
+                    <td>Simple local reactions</td>
+                </tr>
+                <tr>
+                    <td>Predator Escape</td>
+                    <td>Coordinated wave patterns</td>
+                    <td>Individual avoidance</td>
+                </tr>
+            </table>
+
+            <div class="tech-stack">
+                <span class="tech-tag">Biological Modeling</span>
+                <span class="tech-tag">Topological Networks</span>
+                <span class="tech-tag">Wave Propagation</span>
+                <span class="tech-tag">Emergence</span>
+            </div>
+
+            <div class="demo-buttons">
+                <a href="flocking-demo.html" class="demo-button">🚀 Launch Demo</a>
+                <button onclick="showConfig('flocking')" class="demo-button secondary">📋 View Config</button>
+            </div>
+
+            <div id="flocking-config" class="config-section" style="display: none;">
+                <h4>JSON Configuration Example:</h4>
+                <div class="config-example">{
+  "topologicalNeighbors": 7,
+  "cohesionStrength": 0.5,
+  "alignmentStrength": 0.7,
+  "separationStrength": 1.0,
+  "wavePropagation": 0.3,
+  "maxSpeed": 3,
+  "maxForce": 0.08,
+  "visionRange": 80,
+  "separationRange": 25
+}</div>
+                <p><strong>Research Basis:</strong> Based on studies of starling murmurations showing topological interaction networks rather than metric distances.</p>
+            </div>
+        </div>
+
+
+        <!-- Configuration Guide -->
+        <div class="demo-card">
+            <h3>⚙️ Configuration System</h3>
+            <p>All demos feature a comprehensive JSON-based configuration system for parameter tuning and reproducible experiments.</p>
+            
+            <div class="features-list">
+                <h4>Configuration Features:</h4>
+                <ul>
+                    <li><strong>Real-time Editing:</strong> Modify parameters while simulation runs</li>
+                    <li><strong>JSON Import/Export:</strong> Save and load configuration files</li>
+                    <li><strong>Slider Controls:</strong> Interactive parameter adjustment</li>
+                    <li><strong>Preset Scenarios:</strong> Pre-configured demonstration scenarios</li>
+                    <li><strong>Validation:</strong> Parameter bounds checking and error handling</li>
+                </ul>
+            </div>
+
+            <div class="config-section">
+                <h4>How to Use Configurations:</h4>
+                <ol style="color: #cccccc; line-height: 1.6;">
+                    <li><strong>Real-time:</strong> Use sliders to adjust parameters during simulation</li>
+                    <li><strong>JSON Edit:</strong> Modify JSON directly in the configuration panel</li>
+                    <li><strong>Export:</strong> Save configurations as .json files for later use</li>
+                    <li><strong>Import:</strong> Load saved configurations from JSON files</li>
+                    <li><strong>Reset:</strong> Return to default parameter values</li>
+                </ol>
+            </div>
+
+            <div class="tech-stack">
+                <span class="tech-tag">JSON Schema</span>
+                <span class="tech-tag">Parameter Validation</span>
+                <span class="tech-tag">File I/O</span>
+                <span class="tech-tag">Real-time Updates</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Part of the <a href="https://github.com/yourusername/agentjs" class="github-link">AgentJS Framework</a> - Week 6 ML Integration</p>
+        <p>Built with p5.js, Chart.js, and modern web technologies for educational demonstration of ML-enhanced agent-based modeling.</p>
+    </div>
+
+    <script>
+        function showConfig(demoType) {
+            // Hide all config sections
+            const configs = ['resource-config', 'flocking-config'];
+            configs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.style.display = 'none';
+                }
+            });
+            
+            // Show selected config
+            const targetConfig = demoType + '-config';
+            const element = document.getElementById(targetConfig);
+            if (element) {
+                element.style.display = element.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to demo cards
+            const cards = document.querySelectorAll('.demo-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.background = 'rgba(0, 255, 136, 0.05)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.background = 'rgba(0, 0, 0, 0.7)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

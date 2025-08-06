@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 5 Advanced Visualization Demo - AgentJS Framework</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            height: calc(100vh - 60px);
+        }
+        #canvas-container {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #controls {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 350px;
+            height: 100%;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        h1 {
+            margin: 0 0 20px 0;
+            color: #333;
+            font-size: 24px;
+            text-align: center;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 18px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 3px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        button.secondary {
+            background: #2196F3;
+        }
+        button.secondary:hover {
+            background: #1976D2;
+        }
+        button.warning {
+            background: #FF9800;
+        }
+        button.warning:hover {
+            background: #F57C00;
+        }
+        .checkbox-group {
+            margin: 10px 0;
+        }
+        .checkbox-group label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        .checkbox-group input {
+            margin-right: 8px;
+        }
+        .feature-demo {
+            margin: 15px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .feature-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .legend {
+            margin-top: 15px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Week 5 Advanced Visualization Demo</h1>
+    <div id="container">
+        <div id="canvas-container"></div>
+        <div id="controls">
+            <h2>🎮 Simulation Controls</h2>
+            <div class="section">
+                <button id="startBtn">Start Simulation</button>
+                <button id="pauseBtn" disabled>Pause</button>
+                <button id="resetBtn">Reset</button>
+            </div>
+
+            <h2>✨ Animation Engine</h2>
+            <div class="feature-demo">
+                <div class="feature-title">Smooth Agent Transitions</div>
+                <button id="animateBtn" class="secondary">Animate Agent Movement</button>
+                <button id="animatePropsBtn" class="secondary">Animate Properties</button>
+                <p style="font-size: 12px; margin: 5px 0;">Demonstrates smooth transitions using easing functions</p>
+            </div>
+
+            <h2>🎆 Particle Effects</h2>
+            <div class="feature-demo">
+                <div class="feature-title">Visual Feedback System</div>
+                <button id="interactionEffectBtn" class="secondary">Interaction Effect</button>
+                <button id="networkEffectBtn" class="secondary">Network Formation</button>
+                <button id="celebrationEffectBtn" class="warning">Celebration!</button>
+                <p style="font-size: 12px; margin: 5px 0;">Click agents for interaction effects</p>
+            </div>
+
+            <h2>🌡️ Heat Maps</h2>
+            <div class="feature-demo">
+                <div class="feature-title">Spatial Analysis</div>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="densityHeatMap"> Agent Density</label>
+                    <label><input type="checkbox" id="autonomyHeatMap"> Autonomy Levels</label>
+                    <label><input type="checkbox" id="resourcesHeatMap"> Resource Distribution</label>
+                </div>
+                <p style="font-size: 12px; margin: 5px 0;">Toggle different heat map layers</p>
+            </div>
+
+            <h2>🔗 Agent Trails</h2>
+            <div class="feature-demo">
+                <div class="feature-title">Movement History</div>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="showTrails" checked> Show Movement Trails</label>
+                    <label><input type="checkbox" id="showDirections"> Show Direction Arrows</label>
+                </div>
+                <button id="clearTrailsBtn" class="warning">Clear All Trails</button>
+                <p style="font-size: 12px; margin: 5px 0;">Visualizes agent movement patterns</p>
+            </div>
+
+            <h2>📊 Performance Stats</h2>
+            <div class="section" style="font-size: 12px;">
+                <div>FPS: <span id="fps">60</span></div>
+                <div>Agents: <span id="agentCount">0</span></div>
+                <div>Active Effects: <span id="effectCount">0</span></div>
+                <div>Render Time: <span id="renderTime">0ms</span></div>
+            </div>
+
+            <div class="legend">
+                <h3>Agent Types</h3>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #ff6b6b;"></div>
+                    <span>Vulnerable Person</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #333;"></div>
+                    <span>Trafficker</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #4ecdc4;"></div>
+                    <span>Support Worker</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #f7b731;"></div>
+                    <span>Community Leader</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import compiled AgentJS
+        import { 
+            BaseAgent, 
+            NetworkAgent,
+            AgentManager, 
+            ContinuousSpace, 
+            RandomScheduler,
+            NetworkManager
+        } from '../dist/index.es.js';
+
+        // Agent types
+        const AgentType = {
+            VULNERABLE: 'vulnerable',
+            TRAFFICKER: 'trafficker',
+            SUPPORT_WORKER: 'support_worker',
+            COMMUNITY_LEADER: 'community_leader'
+        };
+
+        // Custom Agent with enhanced features (simplified for demo)
+        class AdvancedAgent {
+            constructor(id, type, x, y) {
+                this.id = id;
+                this.type = type;
+                this.position = { x, y };
+                this.targetPos = { x, y };
+                this.properties = {
+                    type,
+                    autonomy: type === AgentType.VULNERABLE ? 20 + Math.random() * 30 : 60 + Math.random() * 40,
+                    resources: type === AgentType.VULNERABLE ? 10 + Math.random() * 40 : 50 + Math.random() * 50,
+                    awareness: type === AgentType.VULNERABLE ? 10 + Math.random() * 30 : 50 + Math.random() * 50,
+                    energy: Math.random() * 100
+                };
+                this.lastClickTime = 0;
+                this.animationActive = false;
+            }
+
+            getProperty(prop) {
+                return this.properties[prop];
+            }
+
+            setProperty(prop, value) {
+                this.properties[prop] = value;
+            }
+
+            step() {
+                
+                // Animate movement if not user-controlled
+                if (!this.animationActive) {
+                    this.updateMovement();
+                }
+                
+                // Update energy
+                const energy = this.getProperty('energy');
+                this.setProperty('energy', Math.max(0, Math.min(100, energy + (Math.random() - 0.5) * 2)));
+            }
+            
+            updateMovement() {
+                // Simple random movement for demo
+                this.targetPos.x += (Math.random() - 0.5) * 10;
+                this.targetPos.y += (Math.random() - 0.5) * 10;
+                
+                // Smooth movement
+                this.position.x += (this.targetPos.x - this.position.x) * 0.1;
+                this.position.y += (this.targetPos.y - this.position.y) * 0.1;
+                
+                // Keep in bounds (will be set by canvas size)
+                const canvas = document.querySelector('#canvas-container canvas');
+                const bounds = { width: canvas ? canvas.width : 800, height: canvas ? canvas.height : 600 };
+                this.position.x = Math.max(20, Math.min(bounds.width - 20, this.position.x));
+                this.position.y = Math.max(20, Math.min(bounds.height - 20, this.position.y));
+                this.targetPos.x = Math.max(20, Math.min(bounds.width - 20, this.targetPos.x));
+                this.targetPos.y = Math.max(20, Math.min(bounds.height - 20, this.targetPos.y));
+            }
+        }
+
+        // Global variables  
+        let agents = [];
+        let isRunning = false;
+        let step = 0;
+        let lastFrameTime = 0;
+        let frameCount = 0;
+
+        // Mock visualization systems for demonstration
+        const mockAnimationEngine = {
+            animateAgent: (agent, newX, newY) => {
+                agent.animationActive = true;
+                const startX = agent._position.x;
+                const startY = agent._position.y;
+                const startTime = Date.now();
+                const duration = 1000;
+                
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3); // ease out cubic
+                    
+                    agent._position.x = startX + (newX - startX) * eased;
+                    agent._position.y = startY + (newY - startY) * eased;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        agent.animationActive = false;
+                    }
+                };
+                animate();
+            },
+            animateProperty: (agent, property, targetValue) => {
+                const startValue = agent.getProperty(property);
+                const startTime = Date.now();
+                const duration = 2000;
+                
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = progress; // linear for properties
+                    
+                    const currentValue = startValue + (targetValue - startValue) * eased;
+                    agent.setProperty(property, currentValue);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                animate();
+            }
+        };
+
+        const mockParticleSystem = {
+            effects: [],
+            createEffect: function(type, x, y) {
+                const effect = {
+                    type,
+                    x, y,
+                    particles: [],
+                    life: 2000,
+                    startTime: Date.now()
+                };
+                
+                const particleCount = type === 'celebration' ? 20 : 10;
+                for (let i = 0; i < particleCount; i++) {
+                    effect.particles.push({
+                        x: x + (Math.random() - 0.5) * 20,
+                        y: y + (Math.random() - 0.5) * 20,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() - 0.5) * 4,
+                        life: 1,
+                        color: type === 'celebration' ? [255, 215, 0] : 
+                               type === 'network' ? [33, 150, 243] : [76, 175, 80]
+                    });
+                }
+                
+                this.effects.push(effect);
+                
+                // Auto-remove after life expires
+                setTimeout(() => {
+                    const index = this.effects.indexOf(effect);
+                    if (index > -1) this.effects.splice(index, 1);
+                }, effect.life);
+            },
+            update: function(sketch) {
+                this.effects.forEach(effect => {
+                    const age = (Date.now() - effect.startTime) / effect.life;
+                    effect.particles.forEach(particle => {
+                        particle.x += particle.vx;
+                        particle.y += particle.vy;
+                        particle.vy += 0.1; // gravity
+                        particle.life = Math.max(0, 1 - age);
+                    });
+                });
+                
+                // Remove dead effects
+                this.effects = this.effects.filter(effect => 
+                    (Date.now() - effect.startTime) < effect.life
+                );
+            },
+            render: function(sketch) {
+                sketch.push();
+                this.effects.forEach(effect => {
+                    effect.particles.forEach(particle => {
+                        if (particle.life > 0) {
+                            sketch.noStroke();
+                            sketch.fill(particle.color[0], particle.color[1], particle.color[2], 
+                                      particle.life * 255);
+                            sketch.circle(particle.x, particle.y, 4 * particle.life);
+                        }
+                    });
+                });
+                sketch.pop();
+            }
+        };
+
+        const mockHeatMapSystem = {
+            layers: new Set(),
+            enableLayer: function(layer) { this.layers.add(layer); },
+            disableLayer: function(layer) { this.layers.delete(layer); },
+            render: function(sketch) {
+                if (this.layers.has('density')) {
+                    sketch.push();
+                    sketch.fill(255, 0, 0, 30);
+                    sketch.noStroke();
+                    agents.forEach(agent => {
+                        sketch.circle(agent.position.x, agent.position.y, 80);
+                    });
+                    sketch.pop();
+                }
+                
+                if (this.layers.has('autonomy')) {
+                    sketch.push();
+                    sketch.fill(0, 255, 0, 20);
+                    sketch.noStroke();
+                    agents.forEach(agent => {
+                        const autonomy = agent.getProperty('autonomy') / 100;
+                        sketch.fill(0, 255, 0, autonomy * 50);
+                        sketch.circle(agent.position.x, agent.position.y, 60);
+                    });
+                    sketch.pop();
+                }
+                
+                if (this.layers.has('resources')) {
+                    sketch.push();
+                    sketch.fill(0, 0, 255, 20);
+                    sketch.noStroke();
+                    agents.forEach(agent => {
+                        const resources = agent.getProperty('resources') / 100;
+                        sketch.fill(0, 0, 255, resources * 40);
+                        sketch.circle(agent.position.x, agent.position.y, 70);
+                    });
+                    sketch.pop();
+                }
+            }
+        };
+
+        const mockTrailSystem = {
+            trails: new Map(),
+            showTrails: true,
+            showDirections: false,
+            addPoint: (agentId, x, y) => {
+                if (!this.trails.has(agentId)) {
+                    this.trails.set(agentId, []);
+                }
+                const trail = this.trails.get(agentId);
+                trail.push({ x, y, time: Date.now() });
+                
+                // Keep only last 30 points
+                if (trail.length > 30) {
+                    trail.shift();
+                }
+            },
+            clear: function() {
+                this.trails.clear();
+            },
+            render: function(sketch) {
+                if (!this.showTrails) return;
+                
+                sketch.push();
+                this.trails.forEach((trail, agentId) => {
+                    if (trail.length < 2) return;
+                    
+                    sketch.strokeWeight(2);
+                    sketch.noFill();
+                    
+                    for (let i = 0; i < trail.length - 1; i++) {
+                        const alpha = (i / trail.length) * 150;
+                        sketch.stroke(100, 150, 255, alpha);
+                        sketch.line(trail[i].x, trail[i].y, trail[i + 1].x, trail[i + 1].y);
+                    }
+                    
+                    // Draw direction arrows
+                    if (this.showDirections && trail.length > 5) {
+                        const recent = trail.slice(-6);
+                        sketch.fill(100, 150, 255, 200);
+                        sketch.noStroke();
+                        const last = recent[recent.length - 1];
+                        const prev = recent[recent.length - 2];
+                        const angle = Math.atan2(last.y - prev.y, last.x - prev.x);
+                        
+                        sketch.push();
+                        sketch.translate(last.x, last.y);
+                        sketch.rotate(angle);
+                        sketch.triangle(0, 0, -8, -3, -8, 3);
+                        sketch.pop();
+                    }
+                });
+                sketch.pop();
+            }
+        };
+
+        // p5.js sketch
+        const sketch = (p) => {
+            p.setup = () => {
+                const container = document.getElementById('canvas-container');
+                const containerRect = container.getBoundingClientRect();
+                const canvasWidth = Math.max(600, containerRect.width - 40);
+                const canvasHeight = Math.max(400, containerRect.height - 40);
+                
+                const canvas = p.createCanvas(canvasWidth, canvasHeight);
+                canvas.parent('canvas-container');
+                
+                resetSimulation();
+                setupEventHandlers();
+            };
+
+            p.draw = () => {
+                const currentTime = Date.now();
+                if (currentTime - lastFrameTime > 100) { // Update FPS every 100ms
+                    const fps = Math.round(1000 / (currentTime - lastFrameTime));
+                    document.getElementById('fps').textContent = fps;
+                    lastFrameTime = currentTime;
+                }
+                
+                p.background(245);
+                
+                // Update and render heat maps (background layer)
+                mockHeatMapSystem.render(p);
+                
+                // Update and render trails
+                if (isRunning) {
+                    agents.forEach(agent => {
+                        mockTrailSystem.addPoint(agent.id, agent.position.x, agent.position.y);
+                    });
+                }
+                mockTrailSystem.render(p);
+                
+                // Draw agents
+                p.noStroke();
+                for (const agent of agents) {
+                    const autonomy = agent.getProperty('autonomy');
+                    const energy = agent.getProperty('energy');
+                    
+                    // Set color based on type
+                    switch (agent.type) {
+                        case AgentType.VULNERABLE:
+                            p.fill(255, 107, 107);
+                            break;
+                        case AgentType.TRAFFICKER:
+                            p.fill(51, 51, 51);
+                            break;
+                        case AgentType.SUPPORT_WORKER:
+                            p.fill(78, 205, 196);
+                            break;
+                        case AgentType.COMMUNITY_LEADER:
+                            p.fill(247, 183, 49);
+                            break;
+                    }
+                    
+                    // Size based on energy
+                    const size = 8 + (energy / 100) * 8;
+                    p.circle(agent.position.x, agent.position.y, size);
+                    
+                    // Show autonomy indicator
+                    if (type === AgentType.VULNERABLE) {
+                        p.fill(0);
+                        p.textAlign(p.CENTER);
+                        p.textSize(8);
+                        p.text(Math.round(autonomy), agent.position.x, agent.position.y - 12);
+                    }
+                }
+                
+                // Update and render particle effects
+                mockParticleSystem.update(p);
+                mockParticleSystem.render(p);
+                
+                // Run simulation step
+                if (isRunning) {
+                    agents.forEach(agent => agent.step());
+                    step++;
+                    updateStats();
+                }
+            };
+
+            p.mousePressed = () => {
+                // Check if mouse is over an agent
+                for (const agent of agents) {
+                    const dx = p.mouseX - agent.position.x;
+                    const dy = p.mouseY - agent.position.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < 15) {
+                        agent.lastClickTime = Date.now();
+                        // Create interaction effect
+                        mockParticleSystem.createEffect('interaction', p.mouseX, p.mouseY);
+                        break;
+                    }
+                }
+            };
+        };
+
+        function resetSimulation() {
+            const canvas = document.querySelector('#canvas-container canvas');
+            const canvasWidth = canvas ? canvas.width : 800;
+            const canvasHeight = canvas ? canvas.height : 600;
+            
+            step = 0;
+            mockTrailSystem.clear();
+            agents = []; // Reset the simple agents array
+            
+            // Create agents with enhanced features
+            const agentTypes = [
+                { type: AgentType.VULNERABLE, count: 20 },
+                { type: AgentType.TRAFFICKER, count: 3 },
+                { type: AgentType.SUPPORT_WORKER, count: 5 },
+                { type: AgentType.COMMUNITY_LEADER, count: 2 }
+            ];
+
+            agentTypes.forEach(({ type, count }) => {
+                for (let i = 0; i < count; i++) {
+                    const agent = new AdvancedAgent(
+                        `${type}_${i}`,
+                        type,
+                        Math.random() * (canvasWidth - 40) + 20,
+                        Math.random() * (canvasHeight - 40) + 20
+                    );
+                    agents.push(agent); // Add to simple array
+                }
+            });
+            
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('agentCount').textContent = agents.length;
+            document.getElementById('effectCount').textContent = mockParticleSystem.effects.length;
+            document.getElementById('renderTime').textContent = '< 1ms';
+        }
+
+        function setupEventHandlers() {
+            // Simulation controls
+            document.getElementById('startBtn').addEventListener('click', () => {
+                isRunning = true;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+            });
+            
+            document.getElementById('pauseBtn').addEventListener('click', () => {
+                isRunning = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                isRunning = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                resetSimulation();
+            });
+
+            // Animation controls
+            document.getElementById('animateBtn').addEventListener('click', () => {
+                const randomAgent = agents[Math.floor(Math.random() * agents.length)];
+                const canvas = document.querySelector('#canvas-container canvas');
+                const newX = Math.random() * (canvas.width - 40) + 20;
+                const newY = Math.random() * (canvas.height - 40) + 20;
+                
+                mockAnimationEngine.animateAgent(randomAgent, newX, newY);
+            });
+
+            document.getElementById('animatePropsBtn').addEventListener('click', () => {
+                const randomAgent = agents[Math.floor(Math.random() * agents.length)];
+                const newAutonomy = Math.random() * 100;
+                
+                mockAnimationEngine.animateProperty(randomAgent, 'autonomy', newAutonomy);
+            });
+
+            // Particle effect controls
+            document.getElementById('interactionEffectBtn').addEventListener('click', () => {
+                const canvas = document.querySelector('#canvas-container canvas');
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                mockParticleSystem.createEffect('interaction', x, y);
+            });
+
+            document.getElementById('networkEffectBtn').addEventListener('click', () => {
+                const canvas = document.querySelector('#canvas-container canvas');
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                mockParticleSystem.createEffect('network', x, y);
+            });
+
+            document.getElementById('celebrationEffectBtn').addEventListener('click', () => {
+                const canvas = document.querySelector('#canvas-container canvas');
+                const x = canvas.width / 2;
+                const y = canvas.height / 2;
+                mockParticleSystem.createEffect('celebration', x, y);
+            });
+
+            // Heat map controls
+            document.getElementById('densityHeatMap').addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    mockHeatMapSystem.enableLayer('density');
+                } else {
+                    mockHeatMapSystem.disableLayer('density');
+                }
+            });
+
+            document.getElementById('autonomyHeatMap').addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    mockHeatMapSystem.enableLayer('autonomy');
+                } else {
+                    mockHeatMapSystem.disableLayer('autonomy');
+                }
+            });
+
+            document.getElementById('resourcesHeatMap').addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    mockHeatMapSystem.enableLayer('resources');
+                } else {
+                    mockHeatMapSystem.disableLayer('resources');
+                }
+            });
+
+            // Trail controls
+            document.getElementById('showTrails').addEventListener('change', (e) => {
+                mockTrailSystem.showTrails = e.target.checked;
+            });
+
+            document.getElementById('showDirections').addEventListener('change', (e) => {
+                mockTrailSystem.showDirections = e.target.checked;
+            });
+
+            document.getElementById('clearTrailsBtn').addEventListener('click', () => {
+                mockTrailSystem.clear();
+            });
+        }
+
+        // Initialize p5
+        new p5(sketch);
+    </script>
+</body>
+</html>

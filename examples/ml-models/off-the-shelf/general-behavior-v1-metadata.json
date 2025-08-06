@@ -1,0 +1,130 @@
+{
+  "name": "general-behavior-v1",
+  "version": "1.0.0",
+  "description": "General-purpose agent behavior model trained on diverse simulation scenarios including movement, social interaction, and resource management patterns",
+  "type": "off-the-shelf",
+  "domain": "general",
+  "inputShape": [null, 12],
+  "outputShape": [null, 5],
+  "inputFeatures": [
+    "position_x_normalized",
+    "position_y_normalized", 
+    "energy_normalized",
+    "age_normalized",
+    "speed_normalized",
+    "neighbor_count_normalized",
+    "simulation_step_normalized",
+    "temperature",
+    "exploration_rate_config",
+    "social_influence_config",
+    "resource_seeking_config",
+    "risk_tolerance_config"
+  ],
+  "outputActions": [
+    "move_x_velocity",
+    "move_y_velocity",
+    "social_intensity",
+    "resource_seeking_intensity",
+    "confidence_score"
+  ],
+  "trainingData": {
+    "source": "Synthetic multi-domain agent simulations",
+    "scenarios": [
+      "flocking_behaviors",
+      "foraging_patterns", 
+      "social_gathering",
+      "resource_competition",
+      "exploration_tasks",
+      "crowd_navigation"
+    ],
+    "totalSamples": 50000,
+    "trainingSize": 40000,
+    "validationSize": 5000,
+    "testSize": 5000,
+    "validationAccuracy": 0.847,
+    "testAccuracy": 0.832
+  },
+  "performance": {
+    "averageInferenceTimeMs": 3.2,
+    "memoryUsageMB": 1.8,
+    "accuracy": 0.832,
+    "precisionMacro": 0.825,
+    "recallMacro": 0.819,
+    "f1ScoreMacro": 0.822
+  },
+  "architecture": {
+    "type": "feedforward_neural_network",
+    "layers": [
+      {
+        "type": "dense",
+        "units": 64,
+        "activation": "relu",
+        "name": "input_layer"
+      },
+      {
+        "type": "dropout",
+        "rate": 0.3,
+        "name": "dropout_1"
+      },
+      {
+        "type": "dense", 
+        "units": 32,
+        "activation": "relu",
+        "name": "hidden_layer_1"
+      },
+      {
+        "type": "dropout",
+        "rate": 0.2,
+        "name": "dropout_2"
+      },
+      {
+        "type": "dense",
+        "units": 16,
+        "activation": "relu", 
+        "name": "hidden_layer_2"
+      },
+      {
+        "type": "dense",
+        "units": 5,
+        "activation": "linear",
+        "name": "output_layer"
+      }
+    ],
+    "optimizer": "adam",
+    "learningRate": 0.001,
+    "lossFunction": "mse",
+    "metrics": ["mae", "accuracy"]
+  },
+  "usageNotes": {
+    "recommendedFor": [
+      "General agent-based simulations",
+      "Multi-agent systems without domain-specific requirements",
+      "Prototyping and baseline comparisons",
+      "Educational demonstrations"
+    ],
+    "limitations": [
+      "Not optimized for specific domains",
+      "May not capture domain-specific nuances",
+      "Requires tuning for optimal performance in specialized scenarios"
+    ],
+    "bestPractices": [
+      "Combine with domain-specific rules for specialized applications",
+      "Use fallback behavior for robustness",
+      "Monitor prediction confidence scores",
+      "Batch process for better performance with many agents"
+    ]
+  },
+  "compatibility": {
+    "tensorflowJsVersion": "^4.15.0",
+    "agentJsVersion": "^0.1.0",
+    "browserSupport": ["Chrome 80+", "Firefox 75+", "Safari 13+", "Edge 80+"],
+    "requiresWebGL": false,
+    "requiresWASM": false
+  },
+  "license": "MIT",
+  "author": "AgentJS Framework Team",
+  "created": "2025-08-05",
+  "lastUpdated": "2025-08-05",
+  "downloadUrl": "./general-behavior-v1.json",
+  "checksum": "sha256:placeholder_checksum_will_be_calculated_when_model_is_actually_trained"
+}

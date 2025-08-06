@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Behavior Model - p5.js Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #1a1a1a;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .ui-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            min-width: 300px;
+            z-index: 1000;
+        }
+
+        .ui-panel h3 {
+            margin: 0 0 10px 0;
+            color: #00ff88;
+            font-size: 16px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #cccccc;
+            font-size: 12px;
+        }
+
+        .slider {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 6px 12px;
+            background: #333;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        button.active {
+            background: #00ff88;
+            color: black;
+        }
+
+        .scenario-active {
+            background: #00ff88 !important;
+            color: black !important;
+        }
+
+        .metrics {
+            background: rgba(0, 20, 0, 0.8);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #00ff88;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            color: #cccccc;
+            font-size: 11px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .performance {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 4px;
+            color: #00ff88;
+            font-size: 11px;
+            font-family: monospace;
+        }
+
+        .feature-display {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 12px;
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 12px;
+            border: 1px solid #00ff88;
+            max-width: 400px;
+            line-height: 1.3;
+        }
+
+        .feature-display .feature-title {
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ui-panel">
+        <h3>🤖 General Behavior Model</h3>
+        
+        <div class="control-group">
+            <div class="button-group">
+                <button id="playBtn">Play</button>
+                <button id="pauseBtn">Pause</button>
+                <button id="resetBtn">Reset</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Scenario:</label>
+            <div class="button-group">
+                <button id="foragingBtn" onclick="loadScenario('foraging')">Foraging</button>
+                <button id="socialBtn" onclick="loadScenario('social')">Social</button>
+                <button id="exploreBtn" onclick="loadScenario('explore')">Explore</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Exploration Rate: <span id="exploreVal">0.3</span></label>
+            <input type="range" class="slider" id="exploreSlider" min="0" max="1" step="0.1" value="0.3">
+        </div>
+
+        <div class="control-group">
+            <label>Social Influence: <span id="socialVal">0.5</span></label>
+            <input type="range" class="slider" id="socialSlider" min="0" max="1" step="0.1" value="0.5">
+        </div>
+
+        <div class="control-group">
+            <label>Resource Seeking: <span id="resourceVal">0.7</span></label>
+            <input type="range" class="slider" id="resourceSlider" min="0" max="1" step="0.1" value="0.7">
+        </div>
+
+        <div class="control-group">
+            <label>Risk Tolerance: <span id="riskVal">0.4</span></label>
+            <input type="range" class="slider" id="riskSlider" min="0" max="1" step="0.1" value="0.4">
+        </div>
+
+        <div class="control-group">
+            <label>Resource Pursuit (ML): <span id="pursuitVal">0.8</span></label>
+            <input type="range" class="slider" id="pursuitSlider" min="0" max="2" step="0.1" value="0.8">
+        </div>
+
+        <div class="metrics">
+            <div>ML Agents: <span id="mlCount">0</span></div>
+            <div>Rule Agents: <span id="ruleCount">0</span></div>
+            <div>Avg Confidence: <span id="avgConf">0.00</span></div>
+            <div>Predictions/sec: <span id="predRate">0</span></div>
+            <div>Active Behaviors: <span id="behaviors">-</span></div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: #00ff88;"></div>
+            ML Agents
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ffaa00;"></div>
+            Rule Agents
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ff4444;"></div>
+            Resources
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #4444ff;"></div>
+            Obstacles
+        </div>
+    </div>
+
+    <div class="performance">
+        <div>FPS: <span id="fps">60</span></div>
+        <div>Agents: <span id="agentCount">0</span></div>
+        <div>Step: <span id="stepCount">0</span></div>
+    </div>
+
+    <div class="feature-display">
+        <div class="feature-title" id="featureTitle">AgentJS Feature:</div>
+        <div id="featureDescription">Watch green ML agents intelligently seek resources while orange rule-based agents use simple logic. Notice how ML agents adapt their behavior dynamically!</div>
+    </div>
+
+    <script>
+        // Global variables
+        let agents = [];
+        let resources = [];
+        let obstacles = [];
+        let isRunning = false;
+        let stepCount = 0;
+        let frameCounter = 0;
+        let lastFPSUpdate = 0;
+        let currentFPS = 60;
+
+        // ML Model Configuration
+        let modelConfig = {
+            explorationRate: 0.3,
+            socialInfluence: 0.5,
+            resourceSeeking: 0.7,
+            riskTolerance: 0.4,
+            resourcePursuit: 0.8
+        };
+
+        // Metrics
+        let metrics = {
+            mlPredictions: 0,
+            rulePredictions: 0,
+            totalConfidence: 0,
+            predictionCount: 0,
+            behaviorCounts: { MOVE: 0, SOCIAL: 0, RESOURCE: 0, IDLE: 0 }
+        };
+
+        // Agent class
+        class Agent {
+            constructor(x, y, isML = true) {
+                this.pos = createVector(x, y);
+                this.vel = createVector(random(-1, 1), random(-1, 1));
+                this.acc = createVector(0, 0);
+                
+                this.energy = random(30, 100);
+                this.maxSpeed = 2;
+                this.maxForce = 0.1;
+                this.size = random(4, 8);
+                this.age = 0;
+                
+                this.isML = isML;
+                this.lastAction = null;
+                this.confidence = 0;
+                this.trail = [];
+                this.maxTrailLength = 15;
+                
+                this.color = isML ? color(0, 255, 136) : color(255, 170, 0);
+            }
+
+            update() {
+                // Get neighbors and nearby resources
+                const neighbors = this.getNeighbors(60);
+                const nearbyResources = this.getNearbyResources(80);
+                
+                // Make decision
+                const action = this.isML ? 
+                    this.makMLDecision(neighbors, nearbyResources) :
+                    this.makeRuleDecision(neighbors, nearbyResources);
+                
+                this.lastAction = action;
+                this.applyAction(action);
+                
+                // Apply general obstacle avoidance (always active)
+                this.applyObstacleAvoidance();
+                
+                // Update physics
+                this.vel.add(this.acc);
+                this.vel.limit(this.maxSpeed);
+                
+                // Calculate new position
+                const newPos = p5.Vector.add(this.pos, this.vel);
+                
+                // Check for obstacle collisions before moving
+                const wouldCollide = this.checkObstacleCollision(newPos);
+                if (!wouldCollide) {
+                    this.pos = newPos;
+                } else {
+                    // Handle collision - slide along obstacle surface
+                    this.handleObstacleCollision(newPos);
+                }
+                
+                this.acc.mult(0);
+                
+                // Wrap around screen
+                if (this.pos.x < 0) this.pos.x = width;
+                if (this.pos.x > width) this.pos.x = 0;
+                if (this.pos.y < 0) this.pos.y = height;
+                if (this.pos.y > height) this.pos.y = 0;
+                
+                // Update trail
+                this.trail.push(this.pos.copy());
+                if (this.trail.length > this.maxTrailLength) {
+                    this.trail.shift();
+                }
+                
+                // Update properties
+                this.energy = max(0, this.energy - 0.05);
+                this.age += 0.01;
+                
+                // Update metrics
+                if (this.isML) {
+                    metrics.mlPredictions++;
+                    metrics.totalConfidence += this.confidence;
+                    metrics.predictionCount++;
+                } else {
+                    metrics.rulePredictions++;
+                }
+                
+                if (action) {
+                    metrics.behaviorCounts[action.type] = (metrics.behaviorCounts[action.type] || 0) + 1;
+                }
+            }
+
+            makMLDecision(neighbors, nearbyResources) {
+                // Simulate ML model prediction
+                const features = this.encodeState(neighbors, nearbyResources);
+                const prediction = this.simulateMLInference(features);
+                return this.decodeAction(prediction);
+            }
+
+            encodeState(neighbors, nearbyResources) {
+                return [
+                    this.pos.x / width,
+                    this.pos.y / height,
+                    this.energy / 100,
+                    this.age / 100,
+                    this.vel.mag() / this.maxSpeed,
+                    min(neighbors.length, 10) / 10,
+                    stepCount % 1000 / 1000,
+                    0.5 + 0.3 * sin(frameCount * 0.01),
+                    modelConfig.explorationRate,
+                    modelConfig.socialInfluence,
+                    modelConfig.resourceSeeking,
+                    modelConfig.riskTolerance
+                ];
+            }
+
+            simulateMLInference(features) {
+                // Mock neural network computation with enhanced resource seeking and pathfinding
+                const nearbyResources = this.getNearbyResources(120);
+                const nearbyObstacles = this.getNearbyObstacles(80);
+                const energyLevel = features[2]; // Current energy level
+                const resourceUrgency = (1 - energyLevel) * modelConfig.resourcePursuit;
+                
+                const moveStrength = features[0] * modelConfig.explorationRate + 
+                                   features[2] * (1 - modelConfig.riskTolerance);
+                const socialStrength = features[5] * modelConfig.socialInfluence;
+                const resourceStrength = (features[3] * modelConfig.resourceSeeking) + 
+                                       (resourceUrgency * 2); // Enhanced by pursuit slider
+                
+                // Boost resource seeking if resources are nearby and energy is low
+                let resourceBoost = 0;
+                if (nearbyResources.length > 0 && energyLevel < 0.6) {
+                    resourceBoost = modelConfig.resourcePursuit * 1.5;
+                }
+                
+                // Enhanced pathfinding: ML agents can "see" resources behind obstacles
+                let pathfindingBoost = 0;
+                if (nearbyObstacles.length > 0 && nearbyResources.length > 0) {
+                    // ML agents are better at navigating around obstacles to reach resources
+                    pathfindingBoost = modelConfig.resourcePursuit * 0.8;
+                }
+                
+                return [
+                    Math.tanh(moveStrength * 2 - 1), // move_x
+                    Math.tanh(moveStrength * 1.5 - 1), // move_y
+                    1 / (1 + Math.exp(-socialStrength * 4)), // social_intensity
+                    Math.min(0.95, 1 / (1 + Math.exp(-(resourceStrength + resourceBoost + pathfindingBoost) * 4))), // enhanced resource_seek with pathfinding
+                    0.6 + random(0.4) // confidence
+                ];
+            }
+
+            decodeAction(prediction) {
+                const [moveX, moveY, socialIntensity, resourceSeek, confidence] = prediction;
+                const moveStrength = sqrt(moveX * moveX + moveY * moveY);
+                
+                this.confidence = confidence;
+                
+                // Prioritize resource seeking more strongly for ML agents
+                if (resourceSeek > 0.4) {
+                    return {
+                        type: 'RESOURCE',
+                        priority: resourceSeek > 0.7 ? 'high' : 'medium',
+                        intensity: resourceSeek
+                    };
+                } else if (moveStrength > 0.3) {
+                    return {
+                        type: 'MOVE',
+                        direction: createVector(moveX, moveY),
+                        strength: min(moveStrength, 1.0)
+                    };
+                } else if (socialIntensity > 0.4) {
+                    return {
+                        type: 'SOCIAL',
+                        intensity: socialIntensity
+                    };
+                }
+                
+                return { type: 'IDLE' };
+            }
+
+            makeRuleDecision(neighbors, nearbyResources) {
+                // Simple rule-based behavior
+                if (this.energy < 30 && nearbyResources.length > 0) {
+                    return {
+                        type: 'RESOURCE',
+                        target: this.findClosest(nearbyResources),
+                        priority: 'high'
+                    };
+                }
+                
+                if (neighbors.length > 5) {
+                    return {
+                        type: 'SOCIAL',
+                        behavior: 'avoid_crowding'
+                    };
+                }
+                
+                if (neighbors.length < 2) {
+                    return {
+                        type: 'SOCIAL',
+                        behavior: 'seek_company'
+                    };
+                }
+                
+                return {
+                    type: 'MOVE',
+                    direction: createVector(random(-1, 1), random(-1, 1)),
+                    strength: 0.5
+                };
+            }
+
+            applyAction(action) {
+                if (!action) return;
+                
+                switch (action.type) {
+                    case 'MOVE':
+                        const force = action.direction.copy();
+                        force.mult(action.strength * 0.05);
+                        this.acc.add(force);
+                        break;
+                        
+                    case 'SOCIAL':
+                        const neighbors = this.getNeighbors(40);
+                        if (neighbors.length > 0) {
+                            const socialForce = createVector(0, 0);
+                            neighbors.forEach(neighbor => {
+                                const diff = p5.Vector.sub(this.pos, neighbor.pos);
+                                const dist = diff.mag();
+                                if (dist > 0) {
+                                    diff.normalize();
+                                    const strength = action.intensity > 0.6 ? -0.02 : 0.02;
+                                    diff.mult(strength);
+                                    socialForce.add(diff);
+                                }
+                            });
+                            this.acc.add(socialForce);
+                        }
+                        break;
+                        
+                    case 'RESOURCE':
+                        const target = action.target || this.findClosest(this.getNearbyResources(150));
+                        if (target) {
+                            let seek = p5.Vector.sub(target.pos, this.pos);
+                            const dist = seek.mag();
+                            
+                            // Check if we're close enough to consume - prioritize consumption over avoidance
+                            if (dist < 20) {
+                                // Very close to resource - direct approach, minimal obstacle avoidance
+                                seek.normalize();
+                                let pursuitForce = 0.05; // Stronger force when close
+                                if (this.isML) {
+                                    pursuitForce *= (1.5 + modelConfig.resourcePursuit);
+                                }
+                                seek.mult(pursuitForce);
+                                this.acc.add(seek);
+                                
+                                // Consume resource if very close
+                                if (dist < 15) {
+                                    this.energy = min(100, this.energy + target.value);
+                                    const index = resources.indexOf(target);
+                                    if (index > -1) {
+                                        resources.splice(index, 1);
+                                        resources.push(new Resource()); // Respawn
+                                    }
+                                }
+                            } else {
+                                // Further from resource - use pathfinding
+                                seek.normalize();
+                                
+                                // Enhanced pursuit for ML agents with obstacle avoidance
+                                let pursuitForce = 0.03;
+                                if (this.isML) {
+                                    pursuitForce *= (1 + modelConfig.resourcePursuit);
+                                    // Additional boost if energy is low
+                                    if (this.energy < 50) {
+                                        pursuitForce *= 1.5;
+                                    }
+                                    
+                                    // ML agents: Intelligent obstacle avoidance and pathfinding
+                                    const nearbyObstacles = this.getNearbyObstacles(60);
+                                    if (nearbyObstacles.length > 0) {
+                                        let avoidance = createVector(0, 0);
+                                        nearbyObstacles.forEach(obstacle => {
+                                            const obstacleDir = p5.Vector.sub(this.pos, obstacle.pos);
+                                            const obstacleDist = obstacleDir.mag() - obstacle.radius;
+                                            if (obstacleDist > 0 && obstacleDist < 45) {
+                                                obstacleDir.normalize();
+                                                // Strong avoidance when close, weaker when far
+                                                const avoidStrength = map(obstacleDist, 0, 45, 1.0, 0.1);
+                                                obstacleDir.mult(avoidStrength);
+                                                avoidance.add(obstacleDir);
+                                            }
+                                        });
+                                        
+                                        // Additional pathfinding avoidance for ML agents (supplement to general avoidance)
+                                        if (avoidance.mag() > 0) {
+                                            avoidance.normalize();
+                                            avoidance.mult(0.03); // Reduced since general avoidance is now active
+                                            seek.add(avoidance);
+                                        }
+                                    }
+                                } else {
+                                    // Rule agents: Simple obstacle collision detection (less intelligent)
+                                    const nearbyObstacles = this.getNearbyObstacles(40);
+                                    if (nearbyObstacles.length > 0) {
+                                        // Simple avoidance - just try to move away from closest obstacle
+                                        const closestObstacle = this.findClosestObstacle(nearbyObstacles);
+                                        if (closestObstacle) {
+                                            const obstacleDir = p5.Vector.sub(this.pos, closestObstacle.pos);
+                                            const obstacleDist = obstacleDir.mag() - closestObstacle.radius;
+                                            if (obstacleDist > 0 && obstacleDist < 35) {
+                                                obstacleDir.normalize();
+                                                obstacleDir.mult(0.02); // Reduced since general avoidance is now active
+                                                seek.add(obstacleDir);
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                seek.mult(pursuitForce);
+                                this.acc.add(seek);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            getNeighbors(radius) {
+                return agents.filter(other => {
+                    if (other === this) return false;
+                    return p5.Vector.dist(this.pos, other.pos) < radius;
+                });
+            }
+
+            getNearbyResources(radius) {
+                return resources.filter(resource => {
+                    return p5.Vector.dist(this.pos, resource.pos) < radius;
+                });
+            }
+
+            getNearbyObstacles(radius) {
+                return obstacles.filter(obstacle => {
+                    return p5.Vector.dist(this.pos, obstacle.pos) < radius + obstacle.radius;
+                });
+            }
+
+            findClosest(targets) {
+                let closest = null;
+                let minDist = Infinity;
+                
+                targets.forEach(target => {
+                    const dist = p5.Vector.dist(this.pos, target.pos);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closest = target;
+                    }
+                });
+                
+                return closest;
+            }
+
+            findClosestObstacle(obstacles) {
+                let closest = null;
+                let minDist = Infinity;
+                
+                obstacles.forEach(obstacle => {
+                    const dist = p5.Vector.dist(this.pos, obstacle.pos) - obstacle.radius;
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closest = obstacle;
+                    }
+                });
+                
+                return closest;
+            }
+
+            checkObstacleCollision(newPos) {
+                // Check if moving to newPos would cause collision with any obstacle
+                for (let obstacle of obstacles) {
+                    const distToObstacle = p5.Vector.dist(newPos, obstacle.pos);
+                    const agentRadius = this.size / 2;
+                    if (distToObstacle < obstacle.radius + agentRadius + 2) { // +2 for small buffer
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            handleObstacleCollision(intendedPos) {
+                // Find the closest obstacle that's causing collision
+                let closestObstacle = null;
+                let minDist = Infinity;
+                const agentRadius = this.size / 2;
+                
+                for (let obstacle of obstacles) {
+                    const distToObstacle = p5.Vector.dist(intendedPos, obstacle.pos);
+                    if (distToObstacle < obstacle.radius + agentRadius + 2) {
+                        if (distToObstacle < minDist) {
+                            minDist = distToObstacle;
+                            closestObstacle = obstacle;
+                        }
+                    }
+                }
+                
+                if (closestObstacle) {
+                    // Calculate safe position - slide along obstacle surface
+                    const toObstacle = p5.Vector.sub(closestObstacle.pos, this.pos);
+                    const distCurrent = toObstacle.mag();
+                    
+                    if (distCurrent > 0) {
+                        toObstacle.normalize();
+                        
+                        // Position agent at safe distance from obstacle
+                        const safeDistance = closestObstacle.radius + agentRadius + 3;
+                        const safePos = p5.Vector.sub(closestObstacle.pos, p5.Vector.mult(toObstacle, safeDistance));
+                        
+                        // Slide along obstacle surface (perpendicular to collision normal)
+                        const perpendicular = createVector(-toObstacle.y, toObstacle.x);
+                        const slideDirection = p5.Vector.dot(this.vel, perpendicular) > 0 ? perpendicular : p5.Vector.mult(perpendicular, -1);
+                        
+                        // Move partially along intended direction and partially sliding
+                        const slideAmount = this.vel.mag() * 0.5;
+                        safePos.add(p5.Vector.mult(slideDirection, slideAmount));
+                        
+                        // Ensure new position doesn't cause another collision
+                        if (!this.checkObstacleCollision(safePos)) {
+                            this.pos = safePos;
+                        }
+                        
+                        // Adjust velocity to slide along obstacle
+                        this.vel = p5.Vector.mult(slideDirection, this.vel.mag() * 0.7);
+                    }
+                }
+            }
+
+            applyObstacleAvoidance() {
+                // General obstacle avoidance force (always active)
+                const nearbyObstacles = this.getNearbyObstacles(this.isML ? 70 : 50);
+                
+                if (nearbyObstacles.length > 0) {
+                    let avoidanceForce = createVector(0, 0);
+                    
+                    nearbyObstacles.forEach(obstacle => {
+                        const toObstacle = p5.Vector.sub(obstacle.pos, this.pos);
+                        const distance = toObstacle.mag() - obstacle.radius;
+                        
+                        if (distance > 0 && distance < (this.isML ? 50 : 35)) {
+                            // Direction away from obstacle
+                            const away = p5.Vector.mult(toObstacle, -1);
+                            away.normalize();
+                            
+                            // Stronger force when closer
+                            const strength = map(distance, 0, (this.isML ? 50 : 35), (this.isML ? 0.6 : 0.4), 0.1);
+                            away.mult(strength);
+                            avoidanceForce.add(away);
+                        }
+                    });
+                    
+                    // Apply the avoidance force
+                    if (avoidanceForce.mag() > 0) {
+                        avoidanceForce.normalize();
+                        avoidanceForce.mult(this.isML ? 0.12 : 0.08); // ML agents have better avoidance
+                        this.acc.add(avoidanceForce);
+                    }
+                }
+            }
+
+            draw() {
+                push();
+                
+                // Draw trail
+                if (this.trail.length > 1) {
+                    stroke(red(this.color), green(this.color), blue(this.color), 50);
+                    strokeWeight(1);
+                    noFill();
+                    beginShape();
+                    this.trail.forEach(pos => vertex(pos.x, pos.y));
+                    endShape();
+                }
+                
+                // Draw agent
+                translate(this.pos.x, this.pos.y);
+                
+                // Energy ring
+                noFill();
+                stroke(this.energy > 30 ? color(0, 255, 0, 100) : color(255, 0, 0, 100));
+                strokeWeight(1);
+                circle(0, 0, this.size * 3);
+                
+                // Confidence ring (ML agents only)
+                if (this.isML && this.confidence > 0) {
+                    stroke(255, 255, 255, 150);
+                    strokeWeight(2);
+                    arc(0, 0, this.size * 4, this.size * 4, 0, TWO_PI * this.confidence);
+                }
+                
+                // Agent body
+                fill(this.color);
+                noStroke();
+                circle(0, 0, this.size);
+                
+                // Direction indicator
+                stroke(255, 200);
+                strokeWeight(1);
+                line(0, 0, this.vel.x * 10, this.vel.y * 10);
+                
+                // Action indicator
+                if (this.lastAction) {
+                    fill(255, 150);
+                    textAlign(CENTER);
+                    textSize(6);
+                    text(this.lastAction.type.charAt(0), 0, -this.size - 5);
+                }
+                
+                pop();
+            }
+        }
+
+        // Resource class
+        class Resource {
+            constructor(x, y) {
+                this.pos = createVector(x || random(width), y || random(height));
+                this.value = random(5, 20);
+                this.size = map(this.value, 5, 20, 6, 12);
+                this.pulse = 0;
+            }
+
+            update() {
+                this.pulse += 0.1;
+            }
+
+            draw() {
+                push();
+                translate(this.pos.x, this.pos.y);
+                
+                const pulseSize = this.size + sin(this.pulse) * 2;
+                fill(255, 68, 68, 200);
+                noStroke();
+                circle(0, 0, pulseSize);
+                
+                fill(255, 100, 100);
+                circle(0, 0, this.size * 0.6);
+                
+                pop();
+            }
+        }
+
+        // Obstacle class
+        class Obstacle {
+            constructor(x, y) {
+                this.pos = createVector(x || random(width), y || random(height));
+                this.radius = random(20, 40);
+            }
+
+            draw() {
+                push();
+                translate(this.pos.x, this.pos.y);
+                
+                fill(68, 68, 255, 100);
+                stroke(68, 68, 255, 200);
+                strokeWeight(2);
+                circle(0, 0, this.radius * 2);
+                
+                pop();
+            }
+        }
+
+        // p5.js setup
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            colorMode(RGB);
+            
+            // Initialize simulation
+            loadScenario('foraging');
+            setupControls();
+        }
+
+        // p5.js draw loop
+        function draw() {
+            background(10, 10, 20);
+            
+            if (isRunning) {
+                stepCount++;
+                
+                // Update all objects
+                agents.forEach(agent => agent.update());
+                resources.forEach(resource => resource.update());
+                
+                // Update FPS counter
+                frameCounter++;
+                if (millis() - lastFPSUpdate > 1000) {
+                    currentFPS = frameCounter;
+                    frameCounter = 0;
+                    lastFPSUpdate = millis();
+                    updateUI();
+                }
+            }
+            
+            // Draw everything
+            obstacles.forEach(obstacle => obstacle.draw());
+            resources.forEach(resource => resource.draw());
+            agents.forEach(agent => agent.draw());
+        }
+
+        // Load different scenarios
+        function loadScenario(type) {
+            agents = [];
+            resources = [];
+            obstacles = [];
+            
+            // Update scenario button states
+            document.querySelectorAll('[id$="Btn"]').forEach(btn => {
+                if (btn.id.includes('foraging') || btn.id.includes('social') || btn.id.includes('explore')) {
+                    btn.classList.remove('scenario-active');
+                }
+            });
+            
+            switch (type) {
+                case 'foraging':
+                    document.getElementById('foragingBtn').classList.add('scenario-active');
+                    // Create foraging scenario - equal ML and rule agents
+                    for (let i = 0; i < 15; i++) {
+                        agents.push(new Agent(random(width), random(height), true));
+                    }
+                    for (let i = 0; i < 15; i++) {
+                        agents.push(new Agent(random(width), random(height), false));
+                    }
+                    
+                    // Create strategic obstacle placement first
+                    for (let i = 0; i < 6; i++) {
+                        obstacles.push(new Obstacle());
+                    }
+                    
+                    // Create more resources (25) with some strategically placed behind obstacles
+                    for (let i = 0; i < 15; i++) {
+                        resources.push(new Resource()); // Open area resources
+                    }
+                    
+                    // Place resources strategically behind obstacles to test pathfinding
+                    obstacles.forEach(obstacle => {
+                        // Place 1-2 resources near each obstacle
+                        const numResources = random([1, 2]);
+                        for (let j = 0; j < numResources; j++) {
+                            const angle = random(TWO_PI);
+                            const distance = obstacle.radius + random(20, 40);
+                            const x = obstacle.pos.x + cos(angle) * distance;
+                            const y = obstacle.pos.y + sin(angle) * distance;
+                            // Ensure resource is within bounds
+                            if (x > 50 && x < width - 50 && y > 50 && y < height - 50) {
+                                resources.push(new Resource(x, y));
+                            }
+                        }
+                    });
+                    updateFeatureDisplay("Intelligent Pathfinding & Resource Seeking", 
+                        "ML agents (green) demonstrate superior obstacle avoidance and pathfinding to reach resources behind walls, while rule agents (orange) use simple collision detection and may get stuck.");
+                    break;
+                    
+                case 'social':
+                    document.getElementById('socialBtn').classList.add('scenario-active');
+                    // Create social interaction scenario - equal agents
+                    for (let i = 0; i < 12; i++) {
+                        agents.push(new Agent(random(width), random(height), true));
+                    }
+                    for (let i = 0; i < 12; i++) {
+                        agents.push(new Agent(random(width), random(height), false));
+                    }
+                    for (let i = 0; i < 5; i++) {
+                        resources.push(new Resource());
+                    }
+                    for (let i = 0; i < 2; i++) {
+                        obstacles.push(new Obstacle());
+                    }
+                    updateFeatureDisplay("Social Behavior Modeling", 
+                        "Watch how ML agents dynamically balance social attraction/avoidance based on neighbor density and social influence parameters, while rule agents use fixed crowd thresholds.");
+                    break;
+                    
+                case 'explore':
+                    document.getElementById('exploreBtn').classList.add('scenario-active');
+                    // Create exploration scenario - equal agents
+                    for (let i = 0; i < 15; i++) {
+                        agents.push(new Agent(random(width), random(height), true));
+                    }
+                    for (let i = 0; i < 15; i++) {
+                        agents.push(new Agent(random(width), random(height), false));
+                    }
+                    for (let i = 0; i < 8; i++) {
+                        resources.push(new Resource());
+                    }
+                    for (let i = 0; i < 8; i++) {
+                        obstacles.push(new Obstacle());
+                    }
+                    updateFeatureDisplay("Adaptive Exploration", 
+                        "ML agents balance exploration vs exploitation using risk tolerance and energy levels. Adjust exploration rate slider to see real-time behavior changes!");
+                    break;
+            }
+            
+            // Reset metrics
+            metrics = {
+                mlPredictions: 0,
+                rulePredictions: 0,
+                totalConfidence: 0,
+                predictionCount: 0,
+                behaviorCounts: { MOVE: 0, SOCIAL: 0, RESOURCE: 0, IDLE: 0 }
+            };
+            stepCount = 0;
+            
+            updateUI();
+        }
+
+        // Setup UI controls
+        function setupControls() {
+            document.getElementById('playBtn').onclick = () => {
+                isRunning = true;
+                document.getElementById('playBtn').classList.add('active');
+                document.getElementById('pauseBtn').classList.remove('active');
+            };
+            
+            document.getElementById('pauseBtn').onclick = () => {
+                isRunning = false;
+                document.getElementById('pauseBtn').classList.add('active');
+                document.getElementById('playBtn').classList.remove('active');
+            };
+            
+            document.getElementById('resetBtn').onclick = () => {
+                isRunning = false;
+                loadScenario('foraging');
+                document.getElementById('playBtn').classList.remove('active');
+                document.getElementById('pauseBtn').classList.remove('active');
+            };
+            
+            // Setup sliders
+            const sliders = ['explore', 'social', 'resource', 'risk', 'pursuit'];
+            const configKeys = ['explorationRate', 'socialInfluence', 'resourceSeeking', 'riskTolerance', 'resourcePursuit'];
+            
+            sliders.forEach((slider, index) => {
+                const element = document.getElementById(slider + 'Slider');
+                const valueElement = document.getElementById(slider + 'Val');
+                
+                element.oninput = (e) => {
+                    const value = parseFloat(e.target.value);
+                    valueElement.textContent = value;
+                    modelConfig[configKeys[index]] = value;
+                };
+            });
+        }
+
+        // Update UI elements
+        function updateUI() {
+            const mlAgents = agents.filter(a => a.isML).length;
+            const ruleAgents = agents.filter(a => !a.isML).length;
+            const avgConfidence = metrics.predictionCount > 0 ? 
+                (metrics.totalConfidence / metrics.predictionCount) : 0;
+            const predRate = Math.round(metrics.mlPredictions / Math.max(1, stepCount / 60));
+            
+            document.getElementById('mlCount').textContent = mlAgents;
+            document.getElementById('ruleCount').textContent = ruleAgents;
+            document.getElementById('avgConf').textContent = avgConfidence.toFixed(2);
+            document.getElementById('predRate').textContent = predRate;
+            document.getElementById('fps').textContent = currentFPS;
+            document.getElementById('agentCount').textContent = agents.length;
+            document.getElementById('stepCount').textContent = stepCount;
+            
+            // Show active behaviors
+            const sortedBehaviors = Object.entries(metrics.behaviorCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 2)
+                .map(([type, count]) => `${type}:${count}`)
+                .join(' ');
+            document.getElementById('behaviors').textContent = sortedBehaviors || '-';
+        }
+
+        // Update feature display
+        function updateFeatureDisplay(title, description) {
+            document.getElementById('featureTitle').textContent = `AgentJS Feature: ${title}`;
+            document.getElementById('featureDescription').textContent = description;
+        }
+
+        // Handle window resize
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+
+        // Start the demo
+        window.onload = () => {
+            // Set foraging as default active scenario
+            document.getElementById('foragingBtn').classList.add('scenario-active');
+            updateFeatureDisplay("Intelligent Pathfinding & Resource Seeking", 
+                "ML agents (green) demonstrate superior obstacle avoidance and pathfinding to reach resources behind walls, while rule agents (orange) use simple collision detection and may get stuck.");
+            
+            isRunning = true;
+            document.getElementById('playBtn').classList.add('active');
+        };
+    </script>
+</body>
+</html>

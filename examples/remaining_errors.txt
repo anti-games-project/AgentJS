@@ -1,0 +1,30 @@
+ in the working demo filecontent.js:251 Used storage: 102384
+  week5-working-demo.html:301 Uncaught TypeError: Cannot read properties of undefined (reading 'forEach')
+      at Object.update (week5-working-demo.html:301:30)
+      at p.draw (week5-working-demo.html:495:36)
+      at v.redraw (p5.min.js:2:542441)
+      at p5.min.js:2:462354
+  update @ week5-working-demo.html:301
+  p.draw @ week5-working-demo.html:495
+  (anonymous) @ p5.min.js:2
+  (anonymous) @ p5.min.js:2
+  requestAnimationFrame
+  (anonymous) @ p5.min.js:2
+  requestAnimationFrame
+  (anonymous) @ p5.min.js:2
+  (anonymous) @ p5.min.js:2
+  and in the original demo file content.js:251 Used storage: 102384
+  week5-advanced-visualization-demo.html:368 Uncaught TypeError: Cannot read properties of undefined (reading 'effects')
+      at Object.update (week5-advanced-visualization-demo.html:368:22)
+      at p.draw (week5-advanced-visualization-demo.html:568:36)
+      at v.redraw (p5.min.js:2:542441)
+      at p5.min.js:2:462354
+  update @ week5-advanced-visualization-demo.html:368
+  p.draw @ week5-advanced-visualization-demo.html:568
+  (anonymous) @ p5.min.js:2
+  (anonymous) @ p5.min.js:2
+  requestAnimationFrame
+  (anonymous) @ p5.min.js:2
+  requestAnimationFrame
+  (anonymous) @ p5.min.js:2
+  (anonymous) @ p5.min.js:2
