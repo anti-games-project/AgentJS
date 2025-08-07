@@ -490,9 +490,6 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 Check out the `/examples` directory for complete working examples:
 
 - `flocking-simulation.ts` - Classic boids flocking behavior
-- `epidemic-model.ts` - SIR disease spread model
-- `market-dynamics.ts` - Economic trading simulation
-- `social-network.ts` - Opinion dynamics in networks
 - `ecosystem.ts` - Predator-prey ecosystem
 
 ## 🚧 Roadmap
