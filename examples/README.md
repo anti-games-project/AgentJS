@@ -335,7 +335,6 @@ perfManager.configure({
 
 Future examples will include:
 
-- **EmptyAddress Game Preview** - Early game mechanics demonstration
 - **Custom Model Training** - Creating domain-specific models
 - **Multi-Agent Scenarios** - Complex social dynamics
 - **Performance Benchmarks** - Large-scale simulation testing

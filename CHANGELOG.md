@@ -217,7 +217,7 @@ Complete advanced visualization features including:
 
 #### 07:00 - Major Architecture Flaw Identified and Fixed
 
-**Problem**: Development plan incorrectly mixed generic AgentJS framework with EmptyAddress-specific trafficking models, violating separation of concerns.
+**Problem**: Development plan incorrectly mixed generic AgentJS framework with domain-specific application models, violating separation of concerns.
 
 **Solution**: Comprehensive restructure separating framework and application concerns:
 
@@ -228,26 +228,17 @@ Complete advanced visualization features including:
 - [ ] **ML infrastructure**: Generic ML integration, example models (Week 6)
 - [ ] **NPM packaging**: Professional distribution, documentation (Weeks 7-8)
 
-#### EmptyAddress Game (Domain-Specific Application) - **12 WEEKS TOTAL**
-- [ ] **Game Development Foundation**: EmptyAddress-specific agents, mechanics, UI (Weeks 9-12)
-- [ ] **Domain-Specific ML Training**: Trafficking models, PPO agents, LSTM predictors (Weeks 13-17)
-- [ ] **Educational Integration**: Materials, validation, sensitivity review (Weeks 18-19)
-- [ ] **Launch Preparation**: Community validation, deployment (Week 20)
-- [ ] **Uses AgentJS as dependency**: Clean separation maintained
-
 #### 07:30 - Documentation Restructure Completed
 
-- [x] **Updated PRD-abm-framework.md**: Removed trafficking references, added generic use cases
+- [x] **Updated PRD-abm-framework.md**: Removed domain-specific references, added generic use cases
 - [x] **Created ARCHITECTURE_RESTRUCTURE.md**: Comprehensive problem analysis and solution
 - [x] **Fixed Week 6 ML plans**: Generic infrastructure instead of domain models
-- [x] **Created EmptyAddress ML training plan**: Domain-specific models in correct phase
 
 #### Timeline Impact Summary
 
 **CORRECTED DEVELOPMENT SCHEDULE:**
 - **AgentJS Development**: 10 weeks → **8 weeks** (-2 weeks, simplified scope)
-- **EmptyAddress Development**: 10 weeks → **12 weeks** (+2 weeks, absorbed complex ML work)
-- **Total Project Time**: 20 weeks (unchanged, proper work allocation)
+- **Total Project Time**: 8 weeks (focused framework development)
 
 #### Benefits of Restructure
 
@@ -263,8 +254,8 @@ Complete advanced visualization features including:
 
 - [x] **Updated ARCHITECTURE_RESTRUCTURE.md**: Added corrected timeline breakdowns
 - [x] **Updated CHANGELOG.md**: Revised all timeline references to reflect 8+12 week structure  
-- [x] **Corrected Development Schedule**: AgentJS (8 weeks) + EmptyAddress (12 weeks) = 20 weeks total
-- [x] **Work Allocation Fixed**: Complex ML work properly moved to EmptyAddress phase
+- [x] **Corrected Development Schedule**: AgentJS (8 weeks) total framework development
+- [x] **Work Allocation Fixed**: Simplified scope focused on generic framework
 - [x] **Documentation Consistency**: All timeline documentation now reflects realistic development schedules
 
 #### 23:00 - MVP Network Visualization Implementation
@@ -498,6 +489,6 @@ Complete visualization foundation supporting:
 └── Complete type definitions for all 72 exported modules
 ```
 
-**Next Phase**: 🎯 **EmptyAddress Game Development** (12 weeks, starting with prompts/02-hira-game/)
+**Next Phase**: 🎯 **Application Development** (using AgentJS as foundation)
 
 ---
